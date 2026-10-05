@@ -1,4 +1,4 @@
 interface:
   display_name: Java 后端约束
   short_description: Java/Spring 后端代码生成、Review 与生产约束
-  default_prompt: 请按项目现有技术栈应用 Java 后端约束，先识别上下文，再按需读取规则并给出可验证的实现或 Review 结果。
+  default_prompt: 请先识别任务范围；简单自包含问题直接回答，只有明确指向当前项目或确有风险时才读取项目文件和相关规则，并给出可验证的 Java 后端实现或 Review 结果。
