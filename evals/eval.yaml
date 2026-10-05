@@ -34,6 +34,7 @@ cases:
     - evals/cases/cache-mq.yaml
     - evals/cases/legacy-refactor.yaml
     - evals/cases/context-budget.yaml
+    - evals/cases/scope-minimal-java.yaml
   defaults:
     timeout_seconds: 420
     max_turns: 8

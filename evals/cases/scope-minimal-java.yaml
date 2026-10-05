@@ -1,0 +1,20 @@
+id: scope-minimal-java
+title: 简单 Java 任务保持最小范围
+description: 验证 Skill 不会把纯 Java 小问题扩展成 Spring、数据库或事务设计。
+input:
+  prompt: |
+    请写一个纯 Java 方法，把 List<String> 中的非空字符串按逗号连接起来。只需要方法和一句说明，不要引入 Spring、数据库、事务或项目架构。
+constraints:
+  timeout_seconds: 240
+  max_turns: 4
+expect:
+  must_contain:
+    - "String"
+    - "return"
+  must_not_contain:
+    - "@RestController"
+    - "@Transactional"
+    - "@Autowired"
+    - "JpaRepository"
+    - "DataSource"
+    - "SELECT *"
