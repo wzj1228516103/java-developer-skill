@@ -188,7 +188,7 @@ git clone https://github.com/wzj1228516103/java-developer-skills.git `
   "$env:USERPROFILE\.codex\skills\java-developer-skills"
 ```
 
-也可以将仓库目录作为项目级 Skill 放入项目的 `.codex/skills/` 或 `.claude/skills/`，具体取决于 Agent 工具的 Skill 加载方式。
+当前仓库优先支持 Codex Plugin；如果宿主不支持插件清单，可以把仓库目录作为项目级 Skill 放入项目的 `.codex/skills/`。其他 Agent（例如 `.claude/skills/`）的目录结构可能相似，但本项目没有承诺其自动发现、入口菜单或路由行为，使用前请按对应宿主文档验证。
 
 如果宿主支持 Codex 插件清单，请使用仓库根目录的 `.codex-plugin/plugin.json`；入口注册表位于 `skills.registry.json`。新增或重命名入口时，需要同步修改这两个文件和 README 的入口表。
 

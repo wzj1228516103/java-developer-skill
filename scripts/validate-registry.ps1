@@ -37,6 +37,12 @@ if (-not $script:HasErrors) {
 
 if (-not $script:HasErrors) {
     $entries = @($registry.entries)
+    if ([string]$registry.name -ne [string]$plugin.name) {
+        Fail "注册表 name 与插件 name 不一致：$($registry.name) / $($plugin.name)"
+    }
+    if ([string]$registry.version -ne [string]$plugin.version) {
+        Fail "注册表 version 与插件 version 不一致：$($registry.version) / $($plugin.version)"
+    }
     if ($entries.Count -eq 0) {
         Fail "skills.registry.json 没有 entries。"
     }
@@ -71,6 +77,10 @@ if (-not $script:HasErrors) {
         } elseif ($match.Groups[1].Value.Trim() -ne [string]$entry.name) {
             Fail "入口名称不一致：注册表=$($entry.name)，SKILL.md=$($match.Groups[1].Value.Trim())"
         }
+        $description = [regex]::Match($content, '(?m)^description:\s*([^\r\n]+)')
+        if (-not $description.Success -or [string]::IsNullOrWhiteSpace($description.Groups[1].Value)) {
+            Fail "入口缺少非空 frontmatter description：$entrySkillPath"
+        }
     }
 
     $actualDirs = @(Get-ChildItem -LiteralPath $skillsPath -Directory | ForEach-Object { "skills/$($_.Name)" })
@@ -82,6 +92,31 @@ if (-not $script:HasErrors) {
 
     if ([string]$plugin.skills -ne "./skills/") {
         Fail ".codex-plugin/plugin.json 的 skills 必须指向 ./skills/。"
+    }
+
+    $rootSkillPath = Join-Path $rootPath "SKILL.md"
+    if (Test-Path -LiteralPath $rootSkillPath) {
+        $rootSkill = Read-Utf8 $rootSkillPath
+        $rootName = [regex]::Match($rootSkill, '(?m)^name:\s*([^\r\n]+)')
+        $rootDescription = [regex]::Match($rootSkill, '(?m)^description:\s*([^\r\n]+)')
+        if (-not $rootName.Success -or $rootName.Groups[1].Value.Trim() -ne [string]$registry.name) {
+            Fail "根 SKILL.md 的 frontmatter name 必须为 $($registry.name)。"
+        }
+        if (-not $rootDescription.Success -or [string]::IsNullOrWhiteSpace($rootDescription.Groups[1].Value)) {
+            Fail "根 SKILL.md 缺少非空 frontmatter description。"
+        }
+
+        $routePaths = [regex]::Matches($rootSkill, '`((?:references|templates|project)/[^`]+)`')
+        foreach ($routePath in $routePaths) {
+            if ($routePath.Groups[1].Value.Contains('<') -or $routePath.Groups[1].Value.Contains('>')) {
+                continue
+            }
+            $relativePath = $routePath.Groups[1].Value -replace '/', [IO.Path]::DirectorySeparatorChar
+            $targetPath = Join-Path $rootPath $relativePath
+            if (-not (Test-Path -LiteralPath $targetPath)) {
+                Fail "根 SKILL.md 引用了不存在的支持文件：$($routePath.Groups[1].Value)"
+            }
+        }
     }
 
     $readme = Read-Utf8 $readmePath

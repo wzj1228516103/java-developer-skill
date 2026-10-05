@@ -1,17 +1,24 @@
 # Service 模板
 
-服务方法应明确事务边界、幂等策略和异常语义。外部调用不要无理由放进数据库事务；状态变更使用条件更新或版本控制。
+这是结构示意，不是可直接复制运行的完整类。服务方法应明确事务边界、幂等策略和异常语义；外部调用不要无理由放进数据库事务，状态变更使用条件更新或版本控制。
 
 ```java
 @Service
-@RequiredArgsConstructor
-class OrderApplicationService {
-    private final OrderRepository repository;
+public class ResourceApplicationService {
+    private final ResourceRepository repository;
+
+    public ResourceApplicationService(ResourceRepository repository) {
+        this.repository = repository;
+    }
 
     @Transactional
-    public OrderResponse create(CreateOrderRequest request) {
-        // 校验、幂等、持久化和事件发布按项目方案实现
-        return OrderResponse.from(repository.save(Order.create(request)));
+    public ResourceResponse create(CreateResourceRequest request) {
+        // 按项目规则完成校验、幂等、领域对象创建和持久化。
+        Resource resource = Resource.create(request);
+        Resource saved = repository.save(resource);
+        return ResourceResponse.from(saved);
     }
 }
 ```
+
+`Resource.create`、`ResourceResponse.from` 和 Repository 方法是占位示例，必须替换为项目已有模型和接口；不要为了套用模板凭空新增公共框架。
