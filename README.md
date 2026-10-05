@@ -248,7 +248,7 @@ public String format(LocalDateTime value) {
 
 ### 评测可复现
 
-评测入口和场景位于 `evals/`，本地辅助脚本位于 `scripts/run-eval.ps1`。脚本只从环境变量读取凭据，不会把 API Key 写入文件、命令参数或报告：
+评测入口和场景位于 `evals/`，本地辅助脚本位于 `scripts/`。脚本只从环境变量读取凭据，不会把 API Key 写入文件、命令参数或报告；`run-eval.ps1 -Repeats N` 可显式进行多轮运行，默认仍只跑一轮：
 
 ```powershell
 # 先在当前 PowerShell 进程设置 Key，不要提交到仓库
@@ -443,9 +443,11 @@ java-developer-skills/
 ├── templates/                  # Controller、DTO、Service、SQL、测试模板
 ├── scripts/                    # 本地评测与仓库维护检查脚本
 │   ├── run-eval.ps1            # 安全评测脚本（凭据只读环境变量）
+│   ├── summarize-eval.ps1      # 汇总多轮结果、Token、耗时和错误
 │   └── validate-registry.ps1   # 入口注册一致性检查
 ├── .github/workflows/          # 手动触发的 skill-up CI 评测
-└── evals/                      # 评测入口和场景
+└── evals/                      # 评测入口、场景和结果解释
+    └── README.md
 ```
 
 ## 评测与质量保证
@@ -476,11 +478,16 @@ java-developer-skills/
 py -3 -X utf8 "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .
 skill-up validate evals/eval.yaml
 
+# 汇总一次或多次运行的结果
+.\scripts\summarize-eval.ps1 -Path .\skill-up-results -JsonOut .\skill-up-summary.json
+
 # 检查补丁中是否有空白错误
 git diff --check
 ```
 
 新增入口时只需先创建 `skills/<name>/SKILL.md`，再运行注册表检查；检查失败会明确指出遗漏的目录、名称或 README 入口。
+
+评测场景分类、重复运行建议和 `PASS/FAIL/ERROR` 的解释见 [`evals/README.md`](evals/README.md)。
 
 ## 适用边界
 
