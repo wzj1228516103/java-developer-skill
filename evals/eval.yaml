@@ -37,6 +37,7 @@ cases:
     - evals/cases/scope-minimal-java.yaml
     - evals/cases/java-core.yaml
     - evals/cases/concurrency-reliability.yaml
+    - evals/cases/testing-quality.yaml
   defaults:
     timeout_seconds: 420
     max_turns: 8
