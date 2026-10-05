@@ -36,6 +36,7 @@ cases:
     - evals/cases/context-budget.yaml
     - evals/cases/scope-minimal-java.yaml
     - evals/cases/java-core.yaml
+    - evals/cases/concurrency-reliability.yaml
   defaults:
     timeout_seconds: 420
     max_turns: 8
