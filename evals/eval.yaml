@@ -38,6 +38,7 @@ cases:
     - evals/cases/java-core.yaml
     - evals/cases/concurrency-reliability.yaml
     - evals/cases/testing-quality.yaml
+    - evals/cases/security-upload-ssrf.yaml
   defaults:
     timeout_seconds: 420
     max_turns: 8
