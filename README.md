@@ -444,6 +444,7 @@ java-developer-skills/
 │   ├── README.md               # 项目配置说明
 │   └── _template.md            # 项目规范模板
 ├── references/                 # 按主题加载的详细规则
+│   ├── README.md               # 规则编号与触发词索引（人工维护）
 │   └── contracts/              # 响应、异常、错误码、分页、日志契约
 ├── templates/                  # Controller、DTO、Service、SQL、测试模板
 ├── scripts/                    # 本地评测与仓库维护检查脚本
