@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$Root = (Resolve-Path (Join-Path $PSScriptRoot ".."))
 )
 
@@ -7,6 +7,10 @@ $ErrorActionPreference = "Stop"
 function Fail([string]$Message) {
     Write-Error $Message
     $script:HasErrors = $true
+}
+
+function Read-Utf8([string]$Path) {
+    return [IO.File]::ReadAllText($Path, [Text.UTF8Encoding]::new($false))
 }
 
 $script:HasErrors = $false
@@ -24,8 +28,8 @@ foreach ($required in @($registryPath, $pluginPath, $readmePath, $skillsPath)) {
 
 if (-not $script:HasErrors) {
     try {
-        $registry = Get-Content -Raw -LiteralPath $registryPath | ConvertFrom-Json
-        $plugin = Get-Content -Raw -LiteralPath $pluginPath | ConvertFrom-Json
+        $registry = Read-Utf8 $registryPath | ConvertFrom-Json
+        $plugin = Read-Utf8 $pluginPath | ConvertFrom-Json
     } catch {
         Fail "注册文件不是有效 JSON：$($_.Exception.Message)"
     }
@@ -60,7 +64,7 @@ if (-not $script:HasErrors) {
             continue
         }
 
-        $content = Get-Content -Raw -LiteralPath $entrySkillPath
+        $content = Read-Utf8 $entrySkillPath
         $match = [regex]::Match($content, '(?ms)^---\s*\r?\nname:\s*([^\r\n]+)')
         if (-not $match.Success) {
             Fail "入口缺少可解析的 frontmatter name：$entrySkillPath"
@@ -80,7 +84,7 @@ if (-not $script:HasErrors) {
         Fail ".codex-plugin/plugin.json 的 skills 必须指向 ./skills/。"
     }
 
-    $readme = Get-Content -Raw -LiteralPath $readmePath
+    $readme = Read-Utf8 $readmePath
     foreach ($name in $entryNames) {
         if ($readme -notmatch [regex]::Escape("/$name")) {
             Fail "README.md 未出现入口 /$name。"

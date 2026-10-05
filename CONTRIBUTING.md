@@ -7,18 +7,9 @@
 ```powershell
 .\scripts\validate-registry.ps1
 .\scripts\validate-content.ps1
-.\scripts\validate-evals.ps1
 py -3 -X utf8 "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .
-skill-up validate evals/eval.yaml
 git diff --check
 ```
-
-涉及行为变化时，请补充或更新 `evals/cases/` 中的场景，并说明：
-
-- 任务输入和预期行为；
-- 规则命中或误报的证据；
-- 是否增加了读取文件、Token 或响应长度；
-- `with_skill` 与 `without_skill` 的差异，以及运行时错误。
 
 ## 规则编写约定
 
@@ -30,4 +21,4 @@ git diff --check
 
 ## Pull Request
 
-PR 描述请包含变更目的、影响范围、验证命令和未覆盖风险。规则、入口或评测变更应同时更新 README、CHANGELOG 或对应场景。
+PR 描述请包含变更目的、影响范围、验证命令和未覆盖风险。规则或入口变更应同时更新 README、CHANGELOG 或对应文档。

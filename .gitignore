@@ -7,4 +7,3 @@ node_modules/
 *.log
 .env
 .env.*
-skill-up-results*/

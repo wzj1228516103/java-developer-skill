@@ -1,6 +1,6 @@
 ---
 name: Skill 行为问题
-about: 报告误报、漏报、过度约束或评测失败
+about: 报告误报、漏报或过度约束
 title: "[Bug] "
 labels: bug
 assignees: ''
@@ -12,7 +12,7 @@ assignees: ''
 
 ## 实际行为
 
-<!-- 粘贴关键回答或评测报告摘要。 -->
+<!-- 粘贴关键回答、日志或错误摘要。 -->
 
 ## 期望行为
 
@@ -21,10 +21,9 @@ assignees: ''
 ## 复现信息
 
 - Skill 版本/commit：
-- Engine/模型：
+- 模型/运行环境：
 - 是否使用 `/java-*` 入口：
-- `with_skill` / `without_skill`：
-- 输入 Token、耗时和状态（如有）：
+- 复现命令或其他上下文（如有）：
 
 ## 脱敏确认
 

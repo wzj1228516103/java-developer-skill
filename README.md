@@ -14,12 +14,10 @@
 - [七个入口](#七个入口)
 - [入口如何配合](#入口如何配合)
 - [覆盖范围](#覆盖范围)
-- [效果验证](#效果验证)
 - [快速开始](#快速开始)
 - [规则等级与裁决顺序](#规则等级与裁决顺序)
 - [项目适配](#项目适配)
 - [仓库结构](#仓库结构)
-- [评测与质量保证](#评测与质量保证)
 - [维护检查](#维护检查)
 - [适用边界](#适用边界)
 - [参考来源与定位](#参考来源与定位)
@@ -155,135 +153,6 @@ Review 当前变更，重点检查权限、SQL 注入、事务边界、重复消
 - ⚖️ **冲突解决策略**：用户需求和已有行为优先，其次是安全、数据正确性、可靠性、一致性、性能和代码风格。
 - 👁️ **生成与审查分流**：开发、设计、Review、测试、修复、重构和规则查询各有独立入口，但共享同一套公共契约。
 - 🎛️ **项目级个性化**：通过 `memory.md` 和 `project/<项目名>.md` 覆盖技术栈、响应、异常、分页和团队编码偏好。
-
-## 效果验证
-
-本项目使用 [Alibaba skill-up](https://github.com/alibaba/skill-up) 对同一批任务进行 `with_skill` / `without_skill` 对照评测。评测引擎为本地 Codex 登录态，单次运行不代表统计学结论；报告和逐条输出保存在本地结果目录中，不把模型偶发运行错误计作 Skill 能力。
-
-### 评测场景
-
-`evals/eval.yaml` 当前包含 12 个场景：
-
-- Controller 参数校验与响应边界
-- SQL 注入与动态标识符白名单
-- 事务中调用远程服务
-- 用户资源归属与租户边界
-- 缓存一致性与消息重复消费
-- 遗留 Service 渐进式重构
-- 简单问题不扫描工作区（上下文成本回归）
-- 简单 Java 任务保持最小范围（反过度约束）
-- 日期时间与金额 API（Java 核心规约）
-- 并发与外部调用可靠性
-- 测试分层与关键路径覆盖
-- SSRF、路径穿越与文件上传
-
-每个场景分别运行 `with_skill` 和 `without_skill`，采用规则断言检查关键安全、事务、分层和重构约束。
-
-### 首轮全量结果（2026-09-24）
-
-首轮 6 场景 × 2 配置共 12 次运行，skill-up 汇总如下：
-
-| 配置 | 通过率 | 平均耗时 | 平均 Token | 说明 |
-|---|---:|---:|---:|---|
-| `with_skill` | 66.67% | 96.2 秒 | 138,312 | 含 1 个运行时错误和 1 个断言误报 |
-| `without_skill` | 83.33% | 139.7 秒 | 66,256 | 基线结果，样本量较小 |
-
-这个结果不能解读为“Skill 让模型变差”：复核发现两个问题。其一，资源归属用例要求固定出现“不能信任”等字面表达，模型使用 `IDOR/BOLA` 和“登录身份来自安全上下文”等价表述时被误判；其二，Controller 用例曾出现 Codex `thread not found` 运行时错误。已将安全断言改为语义正则，并收紧 Skill 的工作区读取规则，避免自包含问题触发全仓扫描。
-
-### 聚焦复测
-
-修正断言和路由后，Controller、资源归属、遗留重构三个重点场景的有效运行中，Controller 和遗留重构均为 `with_skill 100%`；资源归属的有效回答包含越权、认证上下文、资源归属/租户边界和禁止信任请求体 `userId` 等关键要求。资源归属仍出现一次 Codex 运行时错误，因此不将该次结果伪装成通过。
-
-2026-09-24 的三场景复测（每个配置各运行一次）结果如下：
-
-| 配置 | 场景级结果 | 平均耗时 | 平均输入 Token | 结论 |
-|---|---:|---:|---:|---|
-| `with_skill` | 3/3 通过 | 251.3 秒 | 224,872 | 规则命中和安全/重构回答更稳定，但上下文仍偏重 |
-| `without_skill` | 1/3 完全通过 | 126.8 秒 | 66,828 | 更快、更省 Token，但安全与重构断言各漏一项 |
-
-这组样本说明当时的 Skill **正确性收益**是积极的，但**效率成本**仍然过高：平均输入约为基线的 3.4 倍，平均耗时约为 2.0 倍。此后已增加根路由读取门禁、插件默认提示约束、`context-budget`、`scope-minimal-java` 和 `java-core` 回归场景；在没有新的多轮模型结果前，仍不把这组历史样本当作最终统计结论。
-
-评测配置还通过 `skills.local_path.include/exclude` 限制安装文件，只将 Skill 运行所需的入口、参考规则、模板和项目配置交给 Agent，排除 README、评测用例、报告和 Git 元数据，避免评测输入膨胀。评测报告由 skill-up 生成，包含 `result.json`、`benchmark.json`、JUnit XML 和 HTML 报告。重新运行：
-
-```powershell
-skill-up validate evals/eval.yaml
-skill-up run evals/eval.yaml --output-dir ./skill-up-results --parallelism 1
-```
-
-### 当 with-skill 结果变差时怎么修
-
-Skill 的目标不是让模型背诵更多规则，而是让它在关键决策处少犯错。出现 `with_skill` 变差时，优先排查：
-
-1. **上下文过载**：入口读取所有规则、README 或项目文件，模型把 Token 花在检索上。修复为任务先行，只读会改变当前决策的 1～2 个主题。
-2. **流程过度规定**：每次都要求完整 Review 清单、事务说明和测试矩阵，简单任务被迫输出长答案。修复为风险驱动，未涉及的主题不输出。
-3. **建议写成绝对规则**：把 DTO、分层、幂等或架构模式当成所有场景的 MUST，导致模型偏离已有接口。修复为区分安全红线、默认建议和项目例外。
-4. **断言只匹配措辞**：评测要求固定词，等价的 `IDOR/BOLA`、`Principal` 等表达被判失败。修复为检查语义证据，而不是单一关键词。
-
-本仓库的根 `SKILL.md` 和各 `/java-*` 入口已经采用这套原则：先交付、后解释；按需读取；只报告真实问题；高风险改动才增加验证。每次修改后应同时检查回答质量、Token/耗时和运行时错误，不能只看关键词通过率。
-
-### 当前可验证结果
-
-| 验证项 | 当前状态 | 说明 |
-|---|---|---|
-| 根 Skill 元数据 | ✅ 已通过 | `skill-creator` `quick_validate.py` |
-| 7 个独立入口 | ✅ 已通过 | 每个 `skills/*/SKILL.md` 单独校验 |
-| Codex 插件清单 | ✅ 已通过 | `.codex-plugin/plugin.json` |
-| 入口注册一致性 | ✅ 已通过 | `scripts/validate-registry.ps1` 对账注册表、插件清单、入口 frontmatter 和 README |
-| 行为效果基准 | 🧪 已配置场景 | `evals/eval.yaml` 已覆盖安全、事务、缓存、消息、Java 核心和反过度约束场景 |
-
-### 典型对比：日期时间 API
-
-同一句需求“写一个日期格式化工具”，未加载规则时很容易退回旧 API：
-
-```java
-// ❌ 隐患：SimpleDateFormat 可变且非线程安全
-return new SimpleDateFormat(pattern).format(date);
-```
-
-按 Java Developer Skills 的规则，应优先使用线程安全的 `java.time` API：
-
-```java
-// ✅ 推荐：不可变格式器，可复用
-private static final DateTimeFormatter FORMATTER =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-public String format(LocalDateTime value) {
-    return value.format(FORMATTER);
-}
-```
-
-### 评测可复现
-
-评测入口和场景位于 `evals/`，本地辅助脚本位于 `scripts/`。脚本只从环境变量读取凭据，不会把 API Key 写入文件、命令参数或报告；`run-eval.ps1 -Repeats N` 可显式进行多轮运行，默认仍只跑一轮：
-
-```powershell
-# 先在当前 PowerShell 进程设置 Key，不要提交到仓库
-$env:OPENAI_API_KEY = "<你的百炼 API Key>"
-
-# 百炼 OpenAI 兼容模式
-.\scripts\run-eval.ps1 `
-  -Engine qwen_code `
-  -Model qwen3-coder-plus `
-  -SkillUpPath "C:\\tools\\skill-up.exe"
-
-# 只跑一个场景进行 smoke test
-.\scripts\run-eval.ps1 `
-  -Engine qwen_code `
-  -CaseName controller-validation `
-  -SkillUpPath "C:\\tools\\skill-up.exe"
-```
-
-Qwen Code 首次使用需要安装 CLI：`npm install --global @qwen-code/qwen-code`。如果使用 Codex 登录态，可直接运行 `-Engine codex`，无需设置 `OPENAI_API_KEY`。API Key 一旦在聊天、日志或终端历史中暴露，应立即在模型平台撤销并重新生成。
-
-### GitHub Actions
-
-仓库提供一个仅手动触发的工作流，避免每次 Push 自动消耗模型额度。工作流固定了 `skill-up` Action commit，并在运行后上传 JSON/JUnit/HTML 报告。进入 GitHub 的 **Actions → skill-up evaluation → Run workflow**，并在仓库设置中添加 Secret：
-
-```text
-BAILIAN_API_KEY=<你的百炼 API Key>
-```
-
-工作流不会把 Secret 写入日志或仓库；如果 Key 已经在聊天、Issue、日志或终端历史中出现，应先撤销旧 Key 再添加新的 Secret。
 
 ## 覆盖范围
 
@@ -445,35 +314,13 @@ java-developer-skills/
 │   ├── README.md               # 项目配置说明
 │   └── _template.md            # 项目规范模板
 ├── references/                 # 按主题加载的详细规则
-│   ├── README.md               # 规则编号与触发词索引（人工维护）
 │   └── contracts/              # 响应、异常、错误码、分页、日志契约
-├── templates/                  # Controller、DTO、Service、SQL、测试模板
-├── scripts/                    # 本地评测与仓库维护检查脚本
-│   ├── run-eval.ps1            # 安全评测脚本（凭据只读环境变量）
-│   ├── summarize-eval.ps1      # 汇总多轮结果、Token、耗时和错误
+├── templates/                  # Controller、DTO、Service 模板
+├── scripts/                    # 仓库维护检查脚本
 │   ├── validate-content.ps1    # 规则编号和字段完整性检查
-│   ├── validate-evals.ps1      # 评测文件引用和 ID 检查
 │   └── validate-registry.ps1   # 入口注册一致性检查
-├── .github/workflows/          # 静态检查、评测配置检查和手动 skill-up 评测
-└── evals/                      # 评测入口、场景和结果解释
-    └── README.md
+└── .github/workflows/          # 静态质量检查
 ```
-
-## 评测与质量保证
-
-`evals/eval.yaml` 包含第一批场景：
-
-- Controller 参数校验和响应边界
-- SQL 注入与动态标识符白名单
-- 事务中调用远程服务
-- 用户资源归属和租户边界
-- 缓存一致性与消息重复消费
-- 遗留代码的渐进式重构
-- 简单问题的上下文读取边界
-
-评测重点不是是否出现某个关键词，而是是否识别真实风险、给出可执行修复、尊重项目上下文并避免无授权的过度修改。
-
-高风险规则在 `references/` 中使用稳定编号（例如 `SEC-001`、`DB-001`、`TX-001`），并尽量按“级别 / 适用 / 规则 / 正例 / 反例 / 例外”组织。这样 Review、评测和项目例外可以引用同一条规则，而不依赖整段文字匹配。
 
 ## 维护检查
 
@@ -486,26 +333,14 @@ java-developer-skills/
 # 检查规则编号、级别、适用、正例、反例和例外字段
 .\scripts\validate-content.ps1
 
-# 检查 eval.yaml 与 cases 文件、ID、必需字段是否一致
-.\scripts\validate-evals.ps1
-
-# 本地需要已安装 skill-up；GitHub Actions 会自动安装固定版本并执行
-skill-up validate evals/eval.yaml
-
-# 校验 Skill 元数据和评测配置
+# 校验 Skill 元数据
 py -3 -X utf8 "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .
-skill-up validate evals/eval.yaml
-
-# 汇总一次或多次运行的结果
-.\scripts\summarize-eval.ps1 -Path .\skill-up-results -JsonOut .\skill-up-summary.json
 
 # 检查补丁中是否有空白错误
 git diff --check
 ```
 
 新增入口时只需先创建 `skills/<name>/SKILL.md`，再运行注册表检查；检查失败会明确指出遗漏的目录、名称或 README 入口。
-
-评测场景分类、重复运行建议和 `PASS/FAIL/ERROR` 的解释见 [`evals/README.md`](evals/README.md)。
 
 ## 适用边界
 
@@ -521,20 +356,18 @@ git diff --check
 本项目的规约来源与工程实现参考如下：
 
 - [**《Java 开发手册（黄山版）》**](https://github.com/alibaba/p3c)：本 Skill 的规约内容来源，阿里巴巴 Java 社区工程规约的集大成者。
-- [**skill-up**](https://github.com/alibaba/skill-up)：本 Skill 的评测工具，支撑 `evals/` 基准对比与持续回归。
-
-- [Alibaba Java Development Guide](https://github.com/Sxuan-Coder/alibaba-java-development-guide)：按需路由、规则分级、个人和项目配置、评测用例。
+- [Alibaba Java Development Guide](https://github.com/Sxuan-Coder/alibaba-java-development-guide)：按需路由、规则分级、个人和项目配置、实战案例。
 - [backend-skill](https://github.com/zhangloveyan/backend-skill)：公共契约、代码模板、开发生命周期、Review 和测试闭环。
 
 规则内容按通用生产后端实践重新组织，不复制上述项目的特定项目实现或业务约定。
 
 ## 贡献指南
 
-欢迎提交规则、模板和评测用例。新增内容建议遵循：
+欢迎提交规则、模板和实战案例。新增内容建议遵循：
 
 1. 说明规则适用场景和风险，不只写结论。
 2. 区分 `BLOCKER/MUST/SHOULD/MAY`，避免把团队偏好写成通用硬规则。
-3. 同时补充正例、反例或可验证的评测场景。
+3. 同时补充正例、反例或可复现的实战案例。
 4. 不引入与具体项目绑定的类名、包名、错误码和数据库字段作为全局规则。
 5. 修改后运行 `skill-creator` 的 `quick_validate.py`，并检查相关 YAML 和链接。
 

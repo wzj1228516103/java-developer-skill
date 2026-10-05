@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$Root = (Resolve-Path (Join-Path $PSScriptRoot ".."))
 )
 
@@ -8,6 +8,10 @@ $script:HasErrors = $false
 function Fail([string]$Message) {
     Write-Error $Message
     $script:HasErrors = $true
+}
+
+function Read-Utf8([string]$Path) {
+    return [IO.File]::ReadAllText($Path, [Text.UTF8Encoding]::new($false))
 }
 
 $rootPath = (Resolve-Path -LiteralPath $Root).Path
@@ -22,7 +26,7 @@ $allIds = @{}
 $ruleCount = 0
 
 foreach ($file in @(Get-ChildItem -LiteralPath $referencesPath -Recurse -File -Filter "*.md")) {
-    $content = Get-Content -Raw -LiteralPath $file.FullName
+    $content = Read-Utf8 $file.FullName
     $matches = [regex]::Matches($content, $rulePattern)
     if ($matches.Count -eq 0) {
         continue

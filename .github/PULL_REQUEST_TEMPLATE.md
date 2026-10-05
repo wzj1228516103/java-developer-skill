@@ -6,13 +6,12 @@
 
 - [ ] 根路由或入口 Skill
 - [ ] 规则参考文件
-- [ ] 评测场景
 - [ ] 文档或发布配置
 
 ## 验证结果
 
 ```text
-在这里粘贴 validate-registry、quick_validate、skill-up validate 或评测结果。
+在这里粘贴 validate-registry、validate-content、quick_validate 或其他验证结果。
 ```
 
 ## 未覆盖风险
