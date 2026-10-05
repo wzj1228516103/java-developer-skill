@@ -1,6 +1,6 @@
 {
   "name": "java-developer-skills",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "entries": [
     {"name": "java-dev", "path": "skills/java-dev", "description": "新功能开发和代码生成"},
     {"name": "java-design", "path": "skills/java-design", "description": "接口、数据库和架构设计"},

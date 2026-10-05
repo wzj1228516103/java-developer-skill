@@ -20,9 +20,11 @@
 - [项目适配](#项目适配)
 - [仓库结构](#仓库结构)
 - [评测与质量保证](#评测与质量保证)
+- [维护检查](#维护检查)
 - [适用边界](#适用边界)
 - [参考来源与定位](#参考来源与定位)
 - [贡献指南](#贡献指南)
+- [版本记录](CHANGELOG.md)
 - [许可证](#许可证)
 
 ## 为什么需要这个 Skill
@@ -159,7 +161,7 @@ Review 当前变更，重点检查权限、SQL 注入、事务边界、重复消
 
 ### 评测场景
 
-`evals/eval.yaml` 当前包含 6 个场景：
+`evals/eval.yaml` 当前包含 7 个场景：
 
 - Controller 参数校验与响应边界
 - SQL 注入与动态标识符白名单
@@ -167,6 +169,7 @@ Review 当前变更，重点检查权限、SQL 注入、事务边界、重复消
 - 用户资源归属与租户边界
 - 缓存一致性与消息重复消费
 - 遗留 Service 渐进式重构
+- 简单问题不扫描工作区（上下文成本回归）
 
 每个场景分别运行 `with_skill` 和 `without_skill`，采用规则断言检查关键安全、事务、分层和重构约束。
 
@@ -219,7 +222,7 @@ Skill 的目标不是让模型背诵更多规则，而是让它在关键决策�
 | 根 Skill 元数据 | ✅ 已通过 | `skill-creator` `quick_validate.py` |
 | 7 个独立入口 | ✅ 已通过 | 每个 `skills/*/SKILL.md` 单独校验 |
 | Codex 插件清单 | ✅ 已通过 | `.codex-plugin/plugin.json` |
-| 入口注册一致性 | ✅ 已通过 | `skills.registry.json` 与实际目录对账 |
+| 入口注册一致性 | ✅ 已通过 | `scripts/validate-registry.ps1` 对账注册表、插件清单、入口 frontmatter 和 README |
 | 行为效果基准 | 🧪 已配置场景 | `evals/eval.yaml` 已覆盖安全、事务、缓存、消息和遗留重构场景 |
 
 ### 典型对比：日期时间 API
@@ -268,7 +271,7 @@ Qwen Code 首次使用需要安装 CLI：`npm install --global @qwen-code/qwen-c
 
 ### GitHub Actions
 
-仓库提供一个仅手动触发的工作流，避免每次 Push 自动消耗模型额度。进入 GitHub 的 **Actions → skill-up evaluation → Run workflow**，并在仓库设置中添加 Secret：
+仓库提供一个仅手动触发的工作流，避免每次 Push 自动消耗模型额度。工作流固定了 `skill-up` Action commit，并在运行后上传 JSON/JUnit/HTML 报告。进入 GitHub 的 **Actions → skill-up evaluation → Run workflow**，并在仓库设置中添加 Secret：
 
 ```text
 BAILIAN_API_KEY=<你的百炼 API Key>
@@ -438,7 +441,9 @@ java-developer-skills/
 ├── references/                 # 按主题加载的详细规则
 │   └── contracts/              # 响应、异常、错误码、分页、日志契约
 ├── templates/                  # Controller、DTO、Service、SQL、测试模板
-├── scripts/run-eval.ps1        # 本地安全评测脚本（凭据只读环境变量）
+├── scripts/                    # 本地评测与仓库维护检查脚本
+│   ├── run-eval.ps1            # 安全评测脚本（凭据只读环境变量）
+│   └── validate-registry.ps1   # 入口注册一致性检查
 ├── .github/workflows/          # 手动触发的 skill-up CI 评测
 └── evals/                      # 评测入口和场景
 ```
@@ -453,8 +458,29 @@ java-developer-skills/
 - 用户资源归属和租户边界
 - 缓存一致性与消息重复消费
 - 遗留代码的渐进式重构
+- 简单问题的上下文读取边界
 
 评测重点不是是否出现某个关键词，而是是否识别真实风险、给出可执行修复、尊重项目上下文并避免无授权的过度修改。
+
+高风险规则在 `references/` 中使用稳定编号（例如 `SEC-001`、`DB-001`、`TX-001`），并尽量按“级别 / 适用 / 规则 / 正例 / 反例 / 例外”组织。这样 Review、评测和项目例外可以引用同一条规则，而不依赖整段文字匹配。
+
+## 维护检查
+
+提交前建议运行：
+
+```powershell
+# 检查入口注册表、插件清单、frontmatter 和 README 是否同步
+.\scripts\validate-registry.ps1
+
+# 校验 Skill 元数据和评测配置
+py -3 -X utf8 "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .
+skill-up validate evals/eval.yaml
+
+# 检查补丁中是否有空白错误
+git diff --check
+```
+
+新增入口时只需先创建 `skills/<name>/SKILL.md`，再运行注册表检查；检查失败会明确指出遗漏的目录、名称或 README 入口。
 
 ## 适用边界
 

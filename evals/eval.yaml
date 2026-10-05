@@ -7,14 +7,11 @@ environment:
 skills:
   - source: local_path
     path: .
-    # 评测只安装 Skill 运行所需文件，避免把 README、评测样例和报告带入上下文。
+    # 评测只安装路由和规则文件；模板、项目偏好和 README 不属于这些自包含场景。
     include:
       - SKILL.md
       - skills/**/SKILL.md
       - references/**
-      - templates/**
-      - memory.md
-      - project/**
       - agents/**
       - .codex-plugin/plugin.json
       - skills.registry.json
@@ -36,6 +33,7 @@ cases:
     - evals/cases/security-ownership.yaml
     - evals/cases/cache-mq.yaml
     - evals/cases/legacy-refactor.yaml
+    - evals/cases/context-budget.yaml
   defaults:
     timeout_seconds: 420
     max_turns: 8

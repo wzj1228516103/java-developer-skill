@@ -14,7 +14,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Alibaba skill-up with Bailian
-        uses: alibaba/skill-up@main
+        id: skill-up
+        uses: alibaba/skill-up@7f1ff9b8e2d7c654728de526867f2f7e7b78ea51
         with:
           engine: qwen_code
           provider: openai
@@ -22,4 +23,13 @@ jobs:
           api-key: ${{ secrets.BAILIAN_API_KEY }}
           base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
           skill-target: evals/eval.yaml
+          skill-up-version: 0.7.0
           parallelism: 1
+
+      - name: Upload evaluation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-up-evaluation-report
+          path: ${{ steps.skill-up.outputs.report-dir }}
+          if-no-files-found: warn
