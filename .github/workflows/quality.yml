@@ -22,6 +22,10 @@ jobs:
         shell: pwsh
         run: ./scripts/validate-content.ps1
 
+      - name: Validate eval references
+        shell: pwsh
+        run: ./scripts/validate-evals.ps1
+
   validate-evals:
     runs-on: ubuntu-latest
     steps:
@@ -38,4 +42,5 @@ jobs:
 
       - name: Validate evaluation configuration
         shell: bash
-        run: skill-up validate evals/eval.yaml
+        run: |
+          skill-up validate evals/eval.yaml

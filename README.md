@@ -451,6 +451,7 @@ java-developer-skills/
 │   ├── run-eval.ps1            # 安全评测脚本（凭据只读环境变量）
 │   ├── summarize-eval.ps1      # 汇总多轮结果、Token、耗时和错误
 │   ├── validate-content.ps1    # 规则编号和字段完整性检查
+│   ├── validate-evals.ps1      # 评测文件引用和 ID 检查
 │   └── validate-registry.ps1   # 入口注册一致性检查
 ├── .github/workflows/          # 静态检查、评测配置检查和手动 skill-up 评测
 └── evals/                      # 评测入口、场景和结果解释
@@ -483,6 +484,9 @@ java-developer-skills/
 
 # 检查规则编号、级别、适用、正例、反例和例外字段
 .\scripts\validate-content.ps1
+
+# 检查 eval.yaml 与 cases 文件、ID、必需字段是否一致
+.\scripts\validate-evals.ps1
 
 # 本地需要已安装 skill-up；GitHub Actions 会自动安装固定版本并执行
 skill-up validate evals/eval.yaml

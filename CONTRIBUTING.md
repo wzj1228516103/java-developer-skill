@@ -7,6 +7,7 @@
 ```powershell
 .\scripts\validate-registry.ps1
 .\scripts\validate-content.ps1
+.\scripts\validate-evals.ps1
 py -3 -X utf8 "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .
 skill-up validate evals/eval.yaml
 git diff --check
