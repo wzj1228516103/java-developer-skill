@@ -6,6 +6,7 @@ param(
     [string]$CaseName = "",
     [string]$OutputDir = "./skill-up-results",
     [string]$SkillUpPath = "skill-up",
+    [string[]]$EngineKwarg = @(),
     [ValidateRange(1, 50)]
     [int]$Repeats = 1
 )
@@ -25,6 +26,10 @@ if ($Engine -eq "qwen_code") {
     $env:OPENAI_BASE_URL = $BaseUrl
 }
 
+if ($Engine -eq "codex" -and -not [string]::IsNullOrWhiteSpace($env:OPENAI_API_KEY)) {
+    Write-Warning "当前选择 codex，但检测到 OPENAI_API_KEY；Codex 将优先使用其登录态/宿主配置，而不是百炼 Key。需要百炼时请使用 -Engine qwen_code。"
+}
+
 $arguments = @(
     "run",
     "evals/eval.yaml",
@@ -34,6 +39,12 @@ $arguments = @(
 
 if ($Engine -eq "qwen_code") {
     $arguments += @("--provider", "openai", "--model", $Model)
+}
+
+foreach ($kwarg in $EngineKwarg) {
+    if (-not [string]::IsNullOrWhiteSpace($kwarg)) {
+        $arguments += @("--engine-kwarg", $kwarg)
+    }
 }
 
 if (-not [string]::IsNullOrWhiteSpace($CaseName)) {
@@ -55,6 +66,9 @@ for ($iteration = 1; $iteration -le $Repeats; $iteration++) {
     if ($exitCode -ne 0) {
         $overallExitCode = $exitCode
         Write-Warning ("第 {0} 轮退出码为 {1}；继续保留其他轮次结果。" -f $iteration, $exitCode)
+        if ($Engine -eq "codex") {
+            Write-Warning "Codex 运行失败时，请检查登录态和当前模型是否可用；若使用百炼，请改用 -Engine qwen_code 并设置 OPENAI_API_KEY。"
+        }
     }
 }
 

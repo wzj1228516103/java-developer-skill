@@ -17,6 +17,9 @@
 $env:OPENAI_API_KEY = "<你的百炼 API Key>"
 .\scripts\run-eval.ps1 -Engine qwen_code -SkillUpPath "C:\tools\skill-up.exe" -OutputDir .\skill-up-results\run-01
 
+# Codex 宿主需要已有登录态和可用模型；可透传 skill-up 的 engine kwarg
+.\scripts\run-eval.ps1 -Engine codex -EngineKwarg "bypass_sandbox=true" -SkillUpPath "C:\tools\skill-up.exe"
+
 # 重复运行 5 轮（会产生额外模型调用和费用）
 .\scripts\run-eval.ps1 -Engine qwen_code -Repeats 5 -SkillUpPath "C:\tools\skill-up.exe" -OutputDir .\skill-up-results\five-runs
 
@@ -25,6 +28,8 @@ $env:OPENAI_API_KEY = "<你的百炼 API Key>"
 ```
 
 建议至少运行 5 轮，再比较 `with_skill` 和 `without_skill`。不要把单次运行的耗时或通过率当作统计结论。
+
+如果 Codex 报告 `model ... is not available`、认证失败或宿主连接错误，结果应记为 `ERROR` 并更换可用的宿主模型/登录态；不要把它解释为 Skill 通过率下降。使用百炼时必须选择 `qwen_code`，并在当前 PowerShell 进程设置 `OPENAI_API_KEY` 和兼容模式 `OPENAI_BASE_URL`。
 
 ## 结果解释
 
