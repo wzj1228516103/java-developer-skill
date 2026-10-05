@@ -446,7 +446,7 @@ java-developer-skills/
 │   ├── summarize-eval.ps1      # 汇总多轮结果、Token、耗时和错误
 │   ├── validate-content.ps1    # 规则编号和字段完整性检查
 │   └── validate-registry.ps1   # 入口注册一致性检查
-├── .github/workflows/          # 静态检查和手动触发的 skill-up 评测
+├── .github/workflows/          # 静态检查、评测配置检查和手动 skill-up 评测
 └── evals/                      # 评测入口、场景和结果解释
     └── README.md
 ```
@@ -477,6 +477,9 @@ java-developer-skills/
 
 # 检查规则编号、级别、适用、正例、反例和例外字段
 .\scripts\validate-content.ps1
+
+# 本地需要已安装 skill-up；GitHub Actions 会自动安装固定版本并执行
+skill-up validate evals/eval.yaml
 
 # 校验 Skill 元数据和评测配置
 py -3 -X utf8 "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .

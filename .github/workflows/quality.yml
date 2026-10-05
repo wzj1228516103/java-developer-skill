@@ -21,3 +21,21 @@ jobs:
       - name: Validate rule content
         shell: pwsh
         run: ./scripts/validate-content.ps1
+
+  validate-evals:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pinned skill-up CLI
+        shell: bash
+        env:
+          SKILL_UP_VERSION: 0.7.0
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/alibaba/skill-up/7f1ff9b8e2d7c654728de526867f2f7e7b78ea51/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Validate evaluation configuration
+        shell: bash
+        run: skill-up validate evals/eval.yaml
