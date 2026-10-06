@@ -1,4 +1,4 @@
-# Java Developer Skills
+# Java Developer Skill
 
 > 面向 Java/Spring 后端项目的可按需加载 Skill：让代码生成、接口设计、数据库变更、代码 Review 和测试补全遵循一致的生产级约束。
 
