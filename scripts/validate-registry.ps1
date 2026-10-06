@@ -110,7 +110,9 @@ foreach ($entry in $entries) {
     if ($readme -notmatch $tablePattern) { Fail "README entry table is missing /$entryName." }
 }
 $actualDirs = @(Get-ChildItem -LiteralPath $skillsPath -Directory | ForEach-Object { "skills/$($_.Name)" })
-if (@(Compare-Object $actualDirs $entryPaths).Count -gt 0) { Fail "Skills directories and registry entries differ." }
+$actualSorted = @($actualDirs | Sort-Object)
+$entrySorted = @($entryPaths | Sort-Object)
+if (@(Compare-Object $actualSorted $entrySorted).Count -gt 0) { Fail "Skills directories and registry entries differ." }
 
 # Validate concrete root routes. The documented project placeholder is not a file.
 $rootSkill = Read-Utf8 (Join-Path $rootPath "SKILL.md")

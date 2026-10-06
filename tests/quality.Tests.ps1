@@ -108,6 +108,12 @@ try {
             param($text); $json = $text | ConvertFrom-Json; $json.entries += $json.entries[0]; return $json | ConvertTo-Json -Depth 15
         }
     }
+    Check-Fixture "registry order does not matter" "validate-registry.ps1" $true "$expectedEntries entries" {
+        param($fixture)
+        Edit-Text $fixture "skills.registry.json" {
+            param($text); $json = $text | ConvertFrom-Json; [array]::Reverse($json.entries); return $json | ConvertTo-Json -Depth 15
+        }
+    }
     Check-Fixture "registry path escape" "validate-registry.ps1" $false "Entry path must be" {
         param($fixture)
         Edit-Text $fixture "skills.registry.json" {
