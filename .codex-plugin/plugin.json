@@ -1,13 +1,13 @@
 {
-  "name": "java-developer-skills",
+  "name": "java-developer-skill",
   "version": "0.4.0",
   "description": "Java/Spring 后端开发、设计、Review、测试与问题修复的多入口 Skill 插件。",
   "author": {
     "name": "wzj1228516103",
     "url": "https://github.com/wzj1228516103"
   },
-  "homepage": "https://github.com/wzj1228516103/java-developer-skills",
-  "repository": "https://github.com/wzj1228516103/java-developer-skills",
+  "homepage": "https://github.com/wzj1228516103/java-developer-skill",
+  "repository": "https://github.com/wzj1228516103/java-developer-skill",
   "license": "MIT",
   "keywords": ["java", "spring-boot", "backend", "code-review", "testing", "security"],
   "skills": "./skills/",
@@ -18,7 +18,7 @@
     "developerName": "wzj1228516103",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Write"],
-    "websiteURL": "https://github.com/wzj1228516103/java-developer-skills",
+    "websiteURL": "https://github.com/wzj1228516103/java-developer-skill",
     "defaultPrompt": [
       "/java-dev 实现一个符合当前项目技术栈的 Spring 接口",
       "/java-review 检查当前变更的安全、事务和性能风险",
