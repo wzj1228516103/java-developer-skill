@@ -22,3 +22,5 @@ public class ResourceApplicationService {
 ```
 
 `Resource.create`、`ResourceResponse.from` 和 Repository 方法是占位示例，必须替换为项目已有模型和接口；不要为了套用模板凭空新增公共框架。
+
+仅在确有本地原子性要求时使用事务，并确认事务管理器覆盖实际 DataSource。需要 Spring 类代理的类和方法不要声明为 `final`。

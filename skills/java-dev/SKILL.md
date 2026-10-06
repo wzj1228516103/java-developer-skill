@@ -1,6 +1,6 @@
 ---
 name: java-dev
-description: 使用当前项目技术栈开发或生成 Java/Spring 后端代码，包括 Controller、DTO、Service、Mapper、SQL 和业务逻辑。Use when the user asks to implement a new backend feature or code skeleton.
+description: 在用户要求实现或生成 Java/Spring 后端功能、业务逻辑或代码骨架时使用；自包含题按题目实现，项目改动复用现有接口与技术栈。
 ---
 
 # /java-dev

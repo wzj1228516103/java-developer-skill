@@ -9,7 +9,11 @@ permissions:
 
 jobs:
   validate:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,3 +25,7 @@ jobs:
       - name: Validate rule content
         shell: pwsh
         run: ./scripts/validate-content.ps1
+
+      - name: Test validators with valid and invalid fixtures
+        shell: pwsh
+        run: ./tests/quality.Tests.ps1

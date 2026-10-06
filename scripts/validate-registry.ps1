@@ -1,135 +1,159 @@
-﻿param(
-    [string]$Root = (Resolve-Path (Join-Path $PSScriptRoot ".."))
+#requires -Version 7.0
+param(
+    [string]$Root = (Join-Path $PSScriptRoot "..")
 )
 
 $ErrorActionPreference = "Stop"
+$script:HasErrors = $false
 
 function Fail([string]$Message) {
-    Write-Error $Message
     $script:HasErrors = $true
+    Write-Error $Message -ErrorAction Continue
 }
 
 function Read-Utf8([string]$Path) {
-    return [IO.File]::ReadAllText($Path, [Text.UTF8Encoding]::new($false))
+    return [IO.File]::ReadAllText($Path, [Text.UTF8Encoding]::new($false, $true))
 }
 
-$script:HasErrors = $false
-$rootPath = (Resolve-Path -LiteralPath $Root).Path
-$registryPath = Join-Path $rootPath "skills.registry.json"
-$pluginPath = Join-Path $rootPath ".codex-plugin/plugin.json"
-$readmePath = Join-Path $rootPath "README.md"
-$skillsPath = Join-Path $rootPath "skills"
-
-foreach ($required in @($registryPath, $pluginPath, $readmePath, $skillsPath)) {
-    if (-not (Test-Path -LiteralPath $required)) {
-        Fail "缺少必需路径：$required"
+function Assert-SkillHeader([string]$Path, [string]$ExpectedName) {
+    $content = Read-Utf8 $Path
+    $header = [regex]::Match($content, '(?ms)\A---[ \t]*\r?\n(?<body>.*?)^---[ \t]*\r?$')
+    if (-not $header.Success) {
+        Fail "Missing or unclosed frontmatter: $Path"
+        return
     }
-}
-
-if (-not $script:HasErrors) {
-    try {
-        $registry = Read-Utf8 $registryPath | ConvertFrom-Json
-        $plugin = Read-Utf8 $pluginPath | ConvertFrom-Json
-    } catch {
-        Fail "注册文件不是有效 JSON：$($_.Exception.Message)"
-    }
-}
-
-if (-not $script:HasErrors) {
-    $entries = @($registry.entries)
-    if ([string]$registry.name -ne [string]$plugin.name) {
-        Fail "注册表 name 与插件 name 不一致：$($registry.name) / $($plugin.name)"
-    }
-    if ([string]$registry.version -ne [string]$plugin.version) {
-        Fail "注册表 version 与插件 version 不一致：$($registry.version) / $($plugin.version)"
-    }
-    if ($entries.Count -eq 0) {
-        Fail "skills.registry.json 没有 entries。"
-    }
-
-    $entryNames = @($entries | ForEach-Object { [string]$_.name })
-    $entryPaths = @($entries | ForEach-Object { [string]$_.path })
-
-    if (($entryNames | Sort-Object -Unique).Count -ne $entryNames.Count) {
-        Fail "skills.registry.json 存在重复入口 name。"
-    }
-    if (($entryPaths | Sort-Object -Unique).Count -ne $entryPaths.Count) {
-        Fail "skills.registry.json 存在重复入口 path。"
-    }
-
-    foreach ($entry in $entries) {
-        if ([string]::IsNullOrWhiteSpace($entry.name) -or [string]::IsNullOrWhiteSpace($entry.path)) {
-            Fail "入口必须同时包含 name 和 path。"
+    foreach ($key in @("name", "description")) {
+        $fields = [regex]::Matches($header.Groups['body'].Value, "(?m)^$($key):[ \t]*([^\r\n]*)\r?$")
+        if ($fields.Count -ne 1) {
+            Fail "Frontmatter must contain exactly one $($key): $Path"
             continue
         }
-
-        $entryDir = Join-Path $rootPath ([string]$entry.path)
-        $entrySkillPath = Join-Path $entryDir "SKILL.md"
-        if (-not (Test-Path -LiteralPath $entrySkillPath)) {
-            Fail "注册入口缺少 SKILL.md：$($entry.name) -> $($entry.path)"
-            continue
-        }
-
-        $content = Read-Utf8 $entrySkillPath
-        $match = [regex]::Match($content, '(?ms)^---\s*\r?\nname:\s*([^\r\n]+)')
-        if (-not $match.Success) {
-            Fail "入口缺少可解析的 frontmatter name：$entrySkillPath"
-        } elseif ($match.Groups[1].Value.Trim() -ne [string]$entry.name) {
-            Fail "入口名称不一致：注册表=$($entry.name)，SKILL.md=$($match.Groups[1].Value.Trim())"
-        }
-        $description = [regex]::Match($content, '(?m)^description:\s*([^\r\n]+)')
-        if (-not $description.Success -or [string]::IsNullOrWhiteSpace($description.Groups[1].Value)) {
-            Fail "入口缺少非空 frontmatter description：$entrySkillPath"
-        }
-    }
-
-    $actualDirs = @(Get-ChildItem -LiteralPath $skillsPath -Directory | ForEach-Object { "skills/$($_.Name)" })
-    $registeredDirs = @($entryPaths | Sort-Object)
-    $actualSorted = @($actualDirs | Sort-Object)
-    if ((Compare-Object -ReferenceObject $actualSorted -DifferenceObject $registeredDirs)) {
-        Fail "skills/ 目录与 skills.registry.json 的入口集合不一致。"
-    }
-
-    if ([string]$plugin.skills -ne "./skills/") {
-        Fail ".codex-plugin/plugin.json 的 skills 必须指向 ./skills/。"
-    }
-
-    $rootSkillPath = Join-Path $rootPath "SKILL.md"
-    if (Test-Path -LiteralPath $rootSkillPath) {
-        $rootSkill = Read-Utf8 $rootSkillPath
-        $rootName = [regex]::Match($rootSkill, '(?m)^name:\s*([^\r\n]+)')
-        $rootDescription = [regex]::Match($rootSkill, '(?m)^description:\s*([^\r\n]+)')
-        if (-not $rootName.Success -or $rootName.Groups[1].Value.Trim() -ne [string]$registry.name) {
-            Fail "根 SKILL.md 的 frontmatter name 必须为 $($registry.name)。"
-        }
-        if (-not $rootDescription.Success -or [string]::IsNullOrWhiteSpace($rootDescription.Groups[1].Value)) {
-            Fail "根 SKILL.md 缺少非空 frontmatter description。"
-        }
-
-        $routePaths = [regex]::Matches($rootSkill, '`((?:references|templates|project)/[^`]+)`')
-        foreach ($routePath in $routePaths) {
-            if ($routePath.Groups[1].Value.Contains('<') -or $routePath.Groups[1].Value.Contains('>')) {
+        $value = $fields[0].Groups[1].Value.Trim()
+        if ($value.StartsWith('"') -or $value.StartsWith("'")) {
+            if ($value.Length -lt 2 -or $value[-1] -ne $value[0]) {
+                Fail "Unclosed $($key) scalar: $Path"
                 continue
             }
-            $relativePath = $routePath.Groups[1].Value -replace '/', [IO.Path]::DirectorySeparatorChar
-            $targetPath = Join-Path $rootPath $relativePath
-            if (-not (Test-Path -LiteralPath $targetPath)) {
-                Fail "根 SKILL.md 引用了不存在的支持文件：$($routePath.Groups[1].Value)"
-            }
+            $value = $value.Substring(1, $value.Length - 2)
+        } elseif ($value -match '^[>|#\[\]{},&*!]' -or $value -match ':[ \t]' -or $value -match '^(?:null|~|true|false|yes|no|on|off|[+-]?\d+(?:\.\d+)?)$') {
+            Fail "$key must be a nonempty single-line YAML string: $Path"
+            continue
         }
-    }
-
-    $readme = Read-Utf8 $readmePath
-    foreach ($name in $entryNames) {
-        if ($readme -notmatch [regex]::Escape("/$name")) {
-            Fail "README.md 未出现入口 /$name。"
+        if ([string]::IsNullOrWhiteSpace($value)) {
+            Fail "Empty $($key): $Path"
+        } elseif ($key -eq "name" -and $value -cne $ExpectedName) {
+            Fail "Name mismatch: expected $ExpectedName in $Path"
         }
     }
 }
 
-if ($script:HasErrors) {
+$rootPath = (Resolve-Path -LiteralPath $Root).Path
+$rootPrefix = $rootPath.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+$requiredFiles = @("skills.registry.json", ".codex-plugin/plugin.json", "SKILL.md", "README.md", "CHANGELOG.md")
+foreach ($relative in $requiredFiles) {
+    if (-not (Test-Path -LiteralPath (Join-Path $rootPath $relative) -PathType Leaf)) {
+        Fail "Missing required file: $relative"
+    }
+}
+$skillsPath = Join-Path $rootPath "skills"
+if (-not (Test-Path -LiteralPath $skillsPath -PathType Container)) { Fail "Missing skills directory." }
+if ($script:HasErrors) { exit 1 }
+
+try {
+    $registry = Read-Utf8 (Join-Path $rootPath "skills.registry.json") | ConvertFrom-Json
+    $plugin = Read-Utf8 (Join-Path $rootPath ".codex-plugin/plugin.json") | ConvertFrom-Json
+} catch {
+    Fail "Invalid registration JSON: $($_.Exception.Message)"
     exit 1
 }
 
-Write-Output ("注册表校验通过：{0} 个入口。" -f @($registry.entries).Count)
+$name = [string]$registry.name
+$version = [string]$registry.version
+if ($name -cnotmatch '^[a-z0-9]+(?:-[a-z0-9]+)*$' -or $name.Length -gt 64) { Fail "Invalid skill name: $name" }
+if ($name -cne [string]$plugin.name) { Fail "Registry/plugin name mismatch." }
+if ($version -notmatch '^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$') {
+    Fail "Version must use major.minor.patch: $version"
+}
+if ($version -cne [string]$plugin.version) { Fail "Registry/plugin version mismatch." }
+if ((Read-Utf8 (Join-Path $rootPath "CHANGELOG.md")) -notmatch ("(?m)^## \[" + [regex]::Escape($version) + "\]")) {
+    Fail "CHANGELOG.md has no section for version $version."
+}
+if ([string]$plugin.skills -cne "./skills/") { Fail "Plugin skills must point to ./skills/." }
+
+$entries = @($registry.entries)
+$entryNames = @($entries | ForEach-Object { [string]$_.name })
+$entryPaths = @($entries | ForEach-Object { [string]$_.path })
+if ($entries.Count -eq 0) { Fail "No registered entries." }
+if (@($entryNames | Sort-Object -Unique).Count -ne $entryNames.Count) { Fail "Duplicate entry name." }
+if (@($entryPaths | Sort-Object -Unique).Count -ne $entryPaths.Count) { Fail "Duplicate entry path." }
+
+Assert-SkillHeader (Join-Path $rootPath "SKILL.md") $name
+$readme = Read-Utf8 (Join-Path $rootPath "README.md")
+foreach ($entry in $entries) {
+    $entryName = [string]$entry.name
+    if ($entryName -cnotmatch '^[a-z0-9]+(?:-[a-z0-9]+)*$' -or $entryName.Length -gt 64) {
+        Fail "Invalid entry name: $entryName"
+        continue
+    }
+    if ([string]$entry.path -cne "skills/$entryName") {
+        Fail "Entry path must be skills/$($entryName): $($entry.path)"
+        continue
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$entry.description)) { Fail "Empty registry description: $entryName" }
+    $entryFile = Join-Path $rootPath "$($entry.path)/SKILL.md"
+    if (Test-Path -LiteralPath $entryFile -PathType Leaf) {
+        Assert-SkillHeader $entryFile $entryName
+    } else {
+        Fail "Missing entry SKILL.md: $entryName"
+    }
+    $tablePattern = '(?m)^\|[ \t]*' + [regex]::Escape([string][char]96 + "/" + $entryName + [char]96) + '[ \t]*\|'
+    if ($readme -notmatch $tablePattern) { Fail "README entry table is missing /$entryName." }
+}
+$actualDirs = @(Get-ChildItem -LiteralPath $skillsPath -Directory | ForEach-Object { "skills/$($_.Name)" })
+if (@(Compare-Object $actualDirs $entryPaths).Count -gt 0) { Fail "Skills directories and registry entries differ." }
+
+# Validate concrete root routes. The documented project placeholder is not a file.
+$rootSkill = Read-Utf8 (Join-Path $rootPath "SKILL.md")
+$tick = [regex]::Escape([string][char]96)
+foreach ($route in [regex]::Matches($rootSkill, ($tick + '((?:references|templates|project)/[^' + $tick + '\r\n]+|memory\.md)' + $tick))) {
+    $relative = $route.Groups[1].Value
+    if ($relative -eq 'project/<项目名>.md') { continue }
+    $resolvedRoute = [IO.Path]::GetFullPath((Join-Path $rootPath $relative))
+    if (-not $resolvedRoute.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+        Fail "Root route escapes repository: $relative"
+    } elseif (-not (Test-Path -LiteralPath $resolvedRoute)) {
+        Fail "Missing root route: $relative"
+    }
+}
+
+# Local file links are checked offline; external URLs and anchors are not fetched.
+$markdownFiles = @(Get-ChildItem -LiteralPath $rootPath -File -Filter "*.md")
+foreach ($directory in @("skills", "references", "templates", "project", ".github", "docs")) {
+    $path = Join-Path $rootPath $directory
+    if (Test-Path -LiteralPath $path -PathType Container) {
+        $markdownFiles += @(Get-ChildItem -LiteralPath $path -Recurse -File -Filter "*.md")
+    }
+}
+foreach ($file in $markdownFiles) {
+    foreach ($link in [regex]::Matches((Read-Utf8 $file.FullName), '\[[^\]\r\n]*\]\(([^)\r\n]+)\)')) {
+        $target = $link.Groups[1].Value.Trim()
+        if ($target -match '^(?:[A-Za-z][A-Za-z0-9+.-]*:|#)') { continue }
+        if ($target.StartsWith('<')) {
+            $target = ($target -split '>')[0].Substring(1)
+        } else {
+            $target = ($target -split '[ \t]+')[0]
+        }
+        $relative = [Uri]::UnescapeDataString(($target -split '#')[0])
+        if ([string]::IsNullOrWhiteSpace($relative)) { continue }
+        $resolved = [IO.Path]::GetFullPath((Join-Path $file.DirectoryName $relative))
+        if (-not $resolved.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+            Fail "Local link escapes repository: $target in $($file.FullName)"
+        } elseif (-not (Test-Path -LiteralPath $resolved)) {
+            Fail "Broken local file link: $target in $($file.FullName)"
+        }
+    }
+}
+
+if ($script:HasErrors) { exit 1 }
+Write-Output ("Registry, frontmatter and local links valid: {0} entries, version {1}." -f $entries.Count, $version)
 exit 0

@@ -6,13 +6,14 @@
 [![Java](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://www.oracle.com/java/technologies/javase/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
 
-本项目提供一组面向 Java 后端开发的命令式入口。你可以在请求开头使用 `/java-dev`、`/java-review` 等入口，让 Agent 直接进入对应工作模式；入口背后共享同一套规则、公共契约和项目配置。
+本项目提供七种 Java 后端工作模式，用 `/java-dev`、`/java-review` 等写法表达任务意图；入口背后共享规则、契约和项目配置。`/java-*` 是本项目的入口简称，不是所有宿主都内置的命令；安装后的显式调用方法见[快速开始](#快速开始)。
 
 ## 目录
 
 - [为什么需要这个 Skill](#为什么需要这个-skill)
 - [七个入口](#七个入口)
 - [入口如何配合](#入口如何配合)
+- [本 Skill 的优势](#本-skill-的优势)
 - [覆盖范围](#覆盖范围)
 - [快速开始](#快速开始)
 - [规则等级与裁决顺序](#规则等级与裁决顺序)
@@ -32,13 +33,13 @@ Java 后端代码的问题通常不在“能不能编译”，而在于隐含的
 
 | 问题 | 常见表现 | 可能后果 |
 |---|---|---|
-| 接口边界混乱 | Controller 直接访问 Mapper，Entity 直接返回前端 | 难以演进，容易泄露内部字段 |
+| 接口边界混乱 | HTTP 层编排复杂写操作、持久化对象暴露未授权字段 | 难以演进，容易泄露内部字段 |
 | 数据与事务风险 | 事务包住远程调用、重复提交没有幂等、先查后改 | 数据不一致、重复扣款或状态错乱 |
 | 安全缺口 | 信任前端 userId、SQL 拼接、日志记录 Token | 越权、注入、敏感数据泄露 |
 | 可靠性不足 | 无超时、无限重试、消息重复消费未处理 | 线程耗尽、消息堆积、级联故障 |
 | 规范难以落地 | 规则散落在文档中，生成代码时经常遗漏 | Review 成本高，团队风格漂移 |
 
-**根因**：模型缺少一份**权威、结构化、可按需检索**的后端开发约束。把所有规范一次性塞进上下文会浪费 Token；只让模型凭记忆编码，又容易遗漏事务、安全和并发细节。真正有效的 Skill 需要把规则拆成可路由的主题，并让代码生成、Review 和测试共享同一套契约。
+**设计目标**：将容易遗漏的项目契约和工程风险整理成**结构化、可按需检索**的约束。整份手册一次性加载会增加上下文成本，因此只在相关规则会改变答案时读取它。Skill 不保证比模型原有能力更好，效果需要用真实任务验证。
 
 Java Developer Skills 将规则、公共契约和代码模板组合起来，并根据项目实际技术栈按需加载，不把某个团队的实现细节伪装成通用标准。
 
@@ -54,7 +55,7 @@ Java Developer Skills 将规则、公共契约和代码模板组合起来，并�
 | `/java-refactor` | 遗留代码渐进式重构 | 行为保持说明、重构步骤、风险和验证结果 |
 | `/java-rules` | 查询和解释后端约束 | 命中的规则、适用条件、正反例和例外说明 |
 
-入口名称是面向用户的工作模式；所有入口共享根目录的规则、模板、个人偏好和项目配置。当前仓库已经通过 `.codex-plugin/plugin.json` 和 `skills.registry.json` 注册为多入口插件，`/java-dev` 等入口可独立发现；根目录 `SKILL.md` 继续作为不支持插件清单时的兼容入口。
+入口名称是工作模式，不要求按固定流程逐个调用。仓库提供 `.codex-plugin/plugin.json` 供支持该清单的宿主使用；`skills.registry.json` 是本项目的维护索引，不是宿主自动读取的标准配置。根目录 `SKILL.md` 可作为单入口使用，不要单独复制 `skills/java-dev` 等子目录，否则会丢失它们引用的共享资源。
 
 ### `/java-dev`：开发和生成代码
 
@@ -146,11 +147,11 @@ Review 当前变更，重点检查权限、SQL 注入、事务边界、重复消
 ## 本 Skill 的优势
 
 - 📚 **后端领域覆盖**：Java 核心、Spring Web、异常校验、SQL、事务、Redis、消息队列、安全、并发、测试和架构。
-- 🧭 **按需路由，省 Token**：根 `SKILL.md` 和 7 个 `/java-*` 入口只加载当前任务命中的规则，详细内容保存在 `references/`。
+- 🧭 **渐进加载**：总纲与入口引导 Agent 按需读取 `references/`，不默认加载全部主题；简单自包含题通常不读额外规则。这比全量加载轻，但不等于比不用 Skill 更省 Token。
 - 🎯 **入口精准定位**：`/java-dev`、`/java-design`、`/java-review`、`/java-test` 等入口分别对应开发生命周期中的具体工作模式。
 - 🏷️ **保留风险分级**：每个入口使用 `BLOCKER / MUST / SHOULD / MAY` 区分安全红线、生产要求和团队建议。
 - ✅ **正例 + 反例导向**：规则和模板同时说明风险、推荐实现和例外条件，Review 时给出可执行修复。
-- ⚖️ **冲突解决策略**：用户需求和已有行为优先，其次是安全、数据正确性、可靠性、一致性、性能和代码风格。
+- ⚖️ **冲突解决策略**：用户需求确定范围、现有行为确定兼容；范围内的实现取舍以安全、数据正确性、可靠性、一致性、性能和风格排序。
 - 👁️ **生成与审查分流**：开发、设计、Review、测试、修复、重构和规则查询各有独立入口，但共享同一套公共契约。
 - 🎛️ **项目级个性化**：通过 `memory.md` 和 `project/<项目名>.md` 覆盖技术栈、响应、异常、分页和团队编码偏好。
 
@@ -174,7 +175,7 @@ Review 当前变更，重点检查权限、SQL 注入、事务边界、重复消
 
 ### 安装到 Codex
 
-使用 Git 安装到 Codex 全局 Skill 目录：
+先确认当前宿主的 Skill 搜索目录和插件安装方式。下面是使用 `.codex/skills` 的宿主的整仓安装示例，并不保证所有版本都使用同一路径；不要覆盖已经存在的目录：
 
 ```bash
 git clone https://github.com/wzj1228516103/java-developer-skills.git \
@@ -188,19 +189,29 @@ git clone https://github.com/wzj1228516103/java-developer-skills.git `
   "$env:USERPROFILE\.codex\skills\java-developer-skills"
 ```
 
-当前仓库优先支持 Codex Plugin；如果宿主不支持插件清单，可以把仓库目录作为项目级 Skill 放入项目的 `.codex/skills/`。其他 Agent（例如 `.claude/skills/`）的目录结构可能相似，但本项目没有承诺其自动发现、入口菜单或路由行为，使用前请按对应宿主文档验证。
+插件宿主应按自身的安装流程导入完整仓库。把清单放在磁盘上不等于已经注册插件。其他宿主的目录、菜单、入口命名和嵌套发现方式可能不同，需按对应文档验证。
 
-如果宿主支持 Codex 插件清单，请使用仓库根目录的 `.codex-plugin/plugin.json`；入口注册表位于 `skills.registry.json`。新增或重命名入口时，需要同步修改这两个文件和 README 的入口表。
+安装后先在 Skill 列表中确认能看到根入口或子入口。支持显式 Skill 调用的 Codex 环境可选择显示的入口，或在识别该名称时使用 `$java-dev`；`/java-dev` 仅作为本文的工作模式简称，不保证存在同名 slash command。
+
+若没有出现入口，最稳妥的兼容方式是在任意本地目录 clone 完整仓库，再明确让 Agent 读取文件：
+
+```text
+请读取 <仓库绝对路径>/SKILL.md 和
+<仓库绝对路径>/skills/java-dev/SKILL.md，
+按其中的 Java 开发模式完成以下任务：……
+```
+
+插件清单与根/子入口已做静态检查，完整的新环境插件安装、自动发现与七个入口的行为仍需要在对应宿主验证。可参考 [Codex Skills 文档](https://developers.openai.com/codex/skills/)。
 
 ### 第一次使用
 
-在 Java 项目中直接提出任务即可，例如：
+确认入口已加载后，在 Java 项目中提出任务，例如：
 
 ```text
 按当前项目的技术栈写一个创建订单的 Spring Controller 和 Service。
 ```
 
-当任务明确指向当前项目时，Skill 会读取相关构建文件和现有代码，再按需加载 Controller、校验、事务或响应契约；自包含问题不会扫描工作区。也可以显式要求专项检查：
+入口指导 Agent 在任务指向当前项目时读取相关构建文件和代码，自包含题不扫描工作区。规则是模型指令，不是能够强制拦截工具行为的运行时沙箱。也可以显式要求专项检查：
 
 ```text
 Review 这个 Service 的事务边界、幂等性和并发风险。
@@ -231,7 +242,7 @@ Review 按风险顺序检查：
 输出示例：
 
 ```text
-[BLOCKER] SECURITY-OWNERSHIP-001
+[BLOCKER] SEC-001
 位置：UserController.java:42
 问题：接口直接信任请求中的 userId，没有校验当前登录用户的资源归属。
 风险：攻击者可以修改其他用户资料。
@@ -255,15 +266,12 @@ Review 按风险顺序检查：
 规则冲突时遵循：
 
 ```text
-用户明确需求和已有行为
-  > 安全与数据正确性
-  > 可靠性与一致性
-  > 性能
-  > 可维护性
-  > 纯代码风格
+范围和兼容：用户明确需求 + 已有行为
+范围内取舍：安全与数据正确性 > 可靠性与一致性
+          > 性能 > 可维护性 > 纯代码风格
 ```
 
-不要机械地把“方法行数”“批量大小”“分页偏移量”等阈值判定为缺陷，应结合数据量、调用频率、运行环境和已有基准判断。
+偏好不能放宽安全和数据正确性红线。规则级别也不自动等于本次问题的严重性：Review 必须结合适用条件、证据和例外，不凭方法行数、固定阈值或缺少其他文件判定缺陷。
 
 ## 项目适配
 
@@ -292,14 +300,16 @@ message_queue: rocketmq
 
 项目规范可以覆盖默认命名和实现选择，但不能放宽安全、权限、参数化查询和数据正确性红线。
 
+配置优先级为“项目规范 > 个人偏好 > 通用建议”；留空或候选列表不是已确认的配置。生成/修改这些文件需用户要求或确认，不自动把聊天中的一次性选择写成长期规则。不要提交内部项目细节、个人信息或凭据。
+
 ## 仓库结构
 
 ```text
 java-developer-skills/
 ├── .codex-plugin/
 │   └── plugin.json             # Codex 插件清单
-├── skills.registry.json        # 入口目录的单一事实源
-├── skills/                     # 可从 / 菜单发现的独立入口
+├── skills.registry.json        # 本项目的入口维护索引
+├── skills/                     # 七种工作模式；发现方式由宿主决定
 │   ├── java-dev/
 │   ├── java-design/
 │   ├── java-review/
@@ -319,33 +329,36 @@ java-developer-skills/
 ├── scripts/                    # 仓库维护检查脚本
 │   ├── validate-content.ps1    # 规则编号和字段完整性检查
 │   └── validate-registry.ps1   # 入口注册一致性检查
+├── tests/quality.Tests.ps1     # 离线校验回归（含错误样本）
 └── .github/workflows/          # 静态质量检查
 ```
 
 ## 维护检查
 
-提交前建议运行：
+维护检查需要 PowerShell 7（`pwsh`），不需要 API Key、模型接口或 skill-up。提交前运行：
 
 ```powershell
-# 检查入口注册表、插件清单、frontmatter 和 README 是否同步
-.\scripts\validate-registry.ps1
+# 检查版本、入口、frontmatter、路由和本地文件链接
+pwsh -NoProfile -File ./scripts/validate-registry.ps1
 
 # 检查规则编号、级别、适用、正例、反例和例外字段
-.\scripts\validate-content.ps1
+pwsh -NoProfile -File ./scripts/validate-content.ps1
 
-# 校验 Skill 元数据
-py -3 -X utf8 "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .
+# 用临时副本验证错误样本会被拦截，不修改仓库
+pwsh -NoProfile -File ./tests/quality.Tests.ps1
 
 # 检查补丁中是否有空白错误
 git diff --check
 ```
 
-新增入口时只需先创建 `skills/<name>/SKILL.md`，再运行注册表检查；检查失败会明确指出遗漏的目录、名称或 README 入口。
+新增入口时同步 `skills.registry.json` 和 README；清单的 `skills` 目录不变时无需逐项重复登记。修改版本时同步插件清单、注册表和 CHANGELOG。仓库约定 `name`、`description` 为非空单行 YAML 字符串；本地脚本验证该有限结构，不是通用 YAML 解析器。若本机已安装 skill-creator，还可以用其 `quick_validate.py` 做补充检查。
+
+CI 检查入口与规则结构，不等于验证所有 Java 示例可编译、插件已经安装或模型一定更准确。此前小样本对照未见明显正确性退化，也未证实稳定增益；Spring/MySQL 真实事务和并发行为尚未完成运行验证，不公布虚构通过率。
 
 ## 适用边界
 
-- 生产代码和 PR Review：完整启用。
-- Demo、一次性脚本和临时迁移：保留 `BLOCKER/MUST`，`SHOULD` 可按成本豁免。
+- 生产代码和 PR Review：只应用当前任务相关规则。
+- Demo、一次性脚本和临时迁移：保留安全与数据正确性边界，允许轻量结构。
 - 与项目既有规范冲突时：优先项目契约；涉及安全和数据正确性的规则除外。
 - 用户明确要求关闭本 Skill：不再应用本 Skill 的约束。
 
@@ -355,11 +368,11 @@ git diff --check
 
 本项目的规约来源与工程实现参考如下：
 
-- [**《Java 开发手册（黄山版）》**](https://github.com/alibaba/p3c)：本 Skill 的规约内容来源，阿里巴巴 Java 社区工程规约的集大成者。
+- [**《Java 开发手册（黄山版）》**](https://github.com/alibaba/p3c)：Java 基础编码、异常和工程结构等规约的参考来源，不表示本项目全文收录或所有规则均为手册原文。
 - [Alibaba Java Development Guide](https://github.com/Sxuan-Coder/alibaba-java-development-guide)：按需路由、规则分级、个人和项目配置、实战案例。
 - [backend-skill](https://github.com/zhangloveyan/backend-skill)：公共契约、代码模板、开发生命周期、Review 和测试闭环。
 
-规则内容按通用生产后端实践重新组织，不复制上述项目的特定项目实现或业务约定。
+规则按通用后端实践重新组织，包含事务、缓存、消息等工程总结；`BLOCKER/MUST/SHOULD/MAY` 是本项目的分级，不与阿里手册条文级别一一等同。本项目非阿里巴巴官方产品，也未获其背书。
 
 ## 贡献指南
 
@@ -369,8 +382,10 @@ git diff --check
 2. 区分 `BLOCKER/MUST/SHOULD/MAY`，避免把团队偏好写成通用硬规则。
 3. 同时补充正例、反例或可复现的实战案例。
 4. 不引入与具体项目绑定的类名、包名、错误码和数据库字段作为全局规则。
-5. 修改后运行 `skill-creator` 的 `quick_validate.py`，并检查相关 YAML 和链接。
+5. 修改后运行仓库内的维护检查与回归测试，并记录未验证的行为。
 
 ## 许可证
 
 [MIT License](LICENSE)
+
+MIT 适用于本项目原创封装和整理；引用来源的商标、手册原文及第三方素材仍遵循各自权利和许可，不因本仓库的 MIT 声明而改变。

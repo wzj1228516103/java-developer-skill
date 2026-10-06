@@ -1,6 +1,6 @@
 ---
 name: java-refactor
-description: 在保持已有行为和接口兼容的前提下，渐进式重构 Java 后端遗留代码。Use when splitting services, isolating layers, or reducing duplication.
+description: 在用户明确请求重构 Java 后端代码、拆分职责或降低重复时使用；保持已有行为和接口兼容，不因风格偏好重写普通开发任务。
 ---
 
 # /java-refactor

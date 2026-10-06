@@ -1,6 +1,6 @@
 ---
 name: java-review
-description: 审查 Java/Spring 后端代码、提交或 PR，重点检查安全、数据、事务、并发、SQL 性能和测试风险。Use for code review or pre-commit self-check.
+description: 在用户请求审查 Java/Spring 后端代码、提交或 PR 时使用；根据证据检查需求、安全、事务、并发和 SQL 风险，未要求修复时不改代码。
 ---
 
 # /java-review

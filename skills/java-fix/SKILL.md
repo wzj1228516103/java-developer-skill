@@ -1,6 +1,6 @@
 ---
 name: java-fix
-description: 定位和修复 Java 后端 Bug、测试失败、事务未生效、缓存不一致、慢查询和偶发并发问题。Use for diagnosis and minimal verified fixes.
+description: 在用户请求定位或修复 Java 后端 Bug、测试失败或运行故障时使用；只诊断时给出证据和原因，要求修复时做最小可验证改动。
 ---
 
 # /java-fix

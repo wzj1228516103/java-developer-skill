@@ -1,6 +1,6 @@
 ---
 name: java-test
-description: 为 Java/Spring 后端补充单元、集成、API、并发和消息可靠性测试。Use when the user asks to generate or improve backend tests.
+description: 在用户要求生成、补充或改进 Java/Spring 后端测试时使用；按风险区分单元与集成验证，不把一般开发任务扩展为完整测试工程。
 ---
 
 # /java-test

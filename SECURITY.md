@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-当前维护 `master` 分支和最新版本标签。旧版本不会自动获得规则或工作流安全修复。
+当前仅维护 `master` 分支的最新状态。版本号记录在插件清单、注册表和 CHANGELOG；没有 Git tag 或 Release 时不要将版本号理解为已发布的独立安装包。旧提交不会自动获得安全修复。
 
 ## Reporting a Vulnerability
 

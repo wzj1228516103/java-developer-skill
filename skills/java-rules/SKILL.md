@@ -1,6 +1,6 @@
 ---
 name: java-rules
-description: 查询、解释和比较 Java 后端开发规则，说明适用条件、风险、正反例和允许的例外。Use when the user asks about a backend constraint without requesting code changes.
+description: 在用户查询、解释或比较 Java 后端工程约束时使用；说明适用条件与例外，不在仅咨询规则时修改代码。
 ---
 
 # /java-rules

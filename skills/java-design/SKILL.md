@@ -1,6 +1,6 @@
 ---
 name: java-design
-description: 设计 Java 后端接口、数据库、事务、缓存、消息和模块架构。Use before implementing a medium or high-risk backend feature.
+description: 在用户要求 Java 后端技术方案、接口或数据库设计、架构取舍时使用；交付方案，不因普通代码实现请求而强制启动设计流程。
 ---
 
 # /java-design

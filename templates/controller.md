@@ -7,7 +7,7 @@
 ```java
 @RestController
 @RequestMapping("/resources") // 按项目 API 版本和资源命名约定替换
-public final class ResourceController {
+public class ResourceController {
     private final ResourceApplicationService service;
 
     public ResourceController(ResourceApplicationService service) {
