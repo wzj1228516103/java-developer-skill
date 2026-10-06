@@ -1,5 +1,5 @@
 ---
-name: java-developer-skills
+name: java-developer-skill
 description: 为 Java/Spring 后端开发、设计、Review、测试、修复、重构和规则查询提供按需工程约束；不用于无关语言或泛化编程问答。
 ---
 

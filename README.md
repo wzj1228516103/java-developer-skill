@@ -178,15 +178,15 @@ Review 当前变更，重点检查权限、SQL 注入、事务边界、重复消
 先确认当前宿主的 Skill 搜索目录和插件安装方式。下面是使用 `.codex/skills` 的宿主的整仓安装示例，并不保证所有版本都使用同一路径；不要覆盖已经存在的目录：
 
 ```bash
-git clone https://github.com/wzj1228516103/java-developer-skills.git \
-  ~/.codex/skills/java-developer-skills
+git clone https://github.com/wzj1228516103/java-developer-skill.git \
+  ~/.codex/skills/java-developer-skill
 ```
 
 Windows PowerShell：
 
 ```powershell
-git clone https://github.com/wzj1228516103/java-developer-skills.git `
-  "$env:USERPROFILE\.codex\skills\java-developer-skills"
+git clone https://github.com/wzj1228516103/java-developer-skill.git `
+  "$env:USERPROFILE\.codex\skills\java-developer-skill"
 ```
 
 插件宿主应按自身的安装流程导入完整仓库。把清单放在磁盘上不等于已经注册插件。其他宿主的目录、菜单、入口命名和嵌套发现方式可能不同，需按对应文档验证。
@@ -305,7 +305,7 @@ message_queue: rocketmq
 ## 仓库结构
 
 ```text
-java-developer-skills/
+java-developer-skill/
 ├── .codex-plugin/
 │   └── plugin.json             # Codex 插件清单
 ├── skills.registry.json        # 本项目的入口维护索引

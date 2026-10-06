@@ -1,4 +1,4 @@
 interface:
   display_name: "Java 后端约束"
   short_description: "Java/Spring 后端代码生成、Review 与生产约束"
-  default_prompt: "使用 $java-developer-skills 处理此 Java 后端任务；自包含题不扫描工作区，项目任务只读取相关代码与规则。"
+  default_prompt: "使用 $java-developer-skill 处理此 Java 后端任务；自包含题不扫描工作区，项目任务只读取相关代码与规则。"
