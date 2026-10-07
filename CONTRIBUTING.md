@@ -5,9 +5,9 @@
 ## 提交前检查
 
 ```powershell
-pwsh -NoProfile -File ./scripts/validate-registry.ps1
-pwsh -NoProfile -File ./scripts/validate-content.ps1
-pwsh -NoProfile -File ./tests/quality.Tests.ps1
+pwsh -NoProfile -File ./data/maintenance/scripts/validate-registry.ps1
+pwsh -NoProfile -File ./data/maintenance/scripts/validate-content.ps1
+pwsh -NoProfile -File ./data/maintenance/tests/quality.Tests.ps1
 git diff --check
 ```
 
@@ -16,7 +16,7 @@ git diff --check
 - 安全、数据正确性和严重可靠性问题使用 `BLOCKER`；一般生产要求使用 `MUST`；项目可覆盖的建议使用 `SHOULD`；偏好使用 `MAY`。
 - 高风险规则使用稳定编号，并说明适用条件、正例、反例和例外。
 - 不把某个项目的类名、包名、错误码或技术栈写成全局强制规则。
-- 保持 `SKILL.md` 作为路由器，详细内容放到按主题加载的 `references/` 中。
+- 保持 `SKILL.md` 作为路由器，详细内容放到按主题加载的 `data/references/` 中。
 - 简单问题不应触发工作区扫描或无关规则读取。
 - 维护检查使用 PowerShell 7，无需 API Key 或模型服务。Skill 的 `name` 和 `description` 使用非空单行 YAML 字符串；新增入口同步注册表和 README，版本同步插件清单、注册表和 CHANGELOG。
 - 修改校验器时补充成功和失败样本，确认退出码及错误原因；这些是离线结构回归，不是模型效果评测。

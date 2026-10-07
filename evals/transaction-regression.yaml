@@ -5,7 +5,7 @@ environment:
 skills:
   - source: local_path
     path: .
-    include: [SKILL.md, "skills/**", "references/**", "templates/**", "agents/**", "project/**", memory.md]
+    include: [SKILL.md, "skills/**", "data/references/**", "data/templates/**", "agents/**", "project/**", memory.md]
 engine:
   name: codex
   model:

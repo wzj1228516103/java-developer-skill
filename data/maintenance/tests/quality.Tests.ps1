@@ -1,6 +1,6 @@
 #requires -Version 7.0
 param(
-    [string]$Root = (Join-Path $PSScriptRoot "..")
+    [string]$Root = (Join-Path $PSScriptRoot "../../..")
 )
 
 $ErrorActionPreference = "Stop"
@@ -16,7 +16,7 @@ $registry = [IO.File]::ReadAllText((Join-Path $rootPath "skills.registry.json"))
 $expectedEntries = @($registry.entries).Count
 $expectedVersion = $registry.version
 $expectedRules = 0
-foreach ($file in Get-ChildItem -LiteralPath (Join-Path $rootPath "references") -Recurse -File -Filter "*.md") {
+foreach ($file in Get-ChildItem -LiteralPath (Join-Path $rootPath "data/references") -Recurse -File -Filter "*.md") {
     $expectedRules += [regex]::Matches([IO.File]::ReadAllText($file.FullName), '(?m)^##[ \t]+[A-Z][A-Z0-9]+-\d{3}[ \t]+').Count
 }
 
@@ -44,12 +44,34 @@ function Check-Fixture {
             Copy-Item -LiteralPath $file.FullName -Destination $fixture
         }
     }
-    foreach ($directory in @(".codex-plugin", "skills", "references", "templates", "project", "evals")) {
+    foreach ($directory in @(".codex-plugin", "skills", "project")) {
         Copy-Item -LiteralPath (Join-Path $rootPath $directory) -Destination $fixture -Recurse
+    }
+    foreach ($directory in @("references", "templates")) {
+        $dataFixture = Join-Path $fixture "data"
+        New-Item -ItemType Directory -Path $dataFixture -Force | Out-Null
+        Copy-Item -LiteralPath (Join-Path $rootPath "data/$directory") -Destination $dataFixture -Recurse
+    }
+    $imageFixture = Join-Path $fixture "data/images"
+    New-Item -ItemType Directory -Path $imageFixture -Force | Out-Null
+    foreach ($image in @("java-developer-skill-logo.png", "java-developer-skill-overview.png")) {
+        [IO.File]::WriteAllBytes((Join-Path $imageFixture $image), [byte[]]@())
+    }
+    $evalFiles = @(
+        "README.md",
+        "results/2026-10-07-holdout-stability-report.md",
+        "results/2026-10-07-main-v9/metrics.json"
+    )
+    foreach ($relative in $evalFiles) {
+        $source = Join-Path $rootPath "evals/$relative"
+        $destination = Join-Path $fixture "evals/$relative"
+        $parent = Split-Path -Parent $destination
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+        Copy-Item -LiteralPath $source -Destination $destination
     }
     try {
         & $Mutate $fixture
-        $validatorPath = Join-Path $rootPath "scripts/$Validator"
+        $validatorPath = Join-Path $rootPath "data/maintenance/scripts/$Validator"
         $output = & $shellPath -NoProfile -NonInteractive -File $validatorPath -Root $fixture 2>&1
         $code = $LASTEXITCODE
         $message = $output | Out-String
@@ -82,7 +104,7 @@ try {
     }
     Check-Fixture "CRLF rule fields" "validate-content.ps1" $true "$expectedRules numbered rules" {
         param($fixture)
-        Edit-Text $fixture "references/java-core.md" { param($text); return $text -replace '\r?\n', ([string][char]13 + [char]10) }
+        Edit-Text $fixture "data/references/java-core.md" { param($text); return $text -replace '\r?\n', ([string][char]13 + [char]10) }
     }
     Check-Fixture "missing root skill" "validate-registry.ps1" $false "Missing required file: SKILL.md" {
         param($fixture)
@@ -156,11 +178,11 @@ try {
     }
     Check-Fixture "missing root route" "validate-registry.ps1" $false "Missing root route" {
         param($fixture)
-        Edit-Text $fixture "SKILL.md" { param($text); return $text.Replace('references/java-core.md', 'references/missing.md') }
+        Edit-Text $fixture "SKILL.md" { param($text); return $text.Replace('data/references/java-core.md', 'data/references/missing.md') }
     }
     Check-Fixture "root route path escape" "validate-registry.ps1" $false "Root route escapes repository" {
         param($fixture)
-        Edit-Text $fixture "SKILL.md" { param($text); return $text.Replace('references/java-core.md', 'references/../../outside.md') }
+        Edit-Text $fixture "SKILL.md" { param($text); return $text.Replace('data/references/java-core.md', 'data/references/../../../outside.md') }
     }
     Check-Fixture "broken shared link" "validate-registry.ps1" $false "Broken local file link" {
         param($fixture)
@@ -172,31 +194,31 @@ try {
     }
     Check-Fixture "duplicate rule ID" "validate-content.ps1" $false "Duplicate rule ID" {
         param($fixture)
-        Edit-Text $fixture "references/java-core.md" { param($text); return $text.Replace('## JAVA-002 ', '## JAVA-001 ') }
+        Edit-Text $fixture "data/references/java-core.md" { param($text); return $text.Replace('## JAVA-002 ', '## JAVA-001 ') }
     }
     Check-Fixture "invalid rule level" "validate-content.ps1" $false "invalid rule level" {
         param($fixture)
-        Edit-Text $fixture "references/java-core.md" { param($text); return $text.Replace('级别：MUST', '级别：INVALID') }
+        Edit-Text $fixture "data/references/java-core.md" { param($text); return $text.Replace('级别：MUST', '级别：INVALID') }
     }
     Check-Fixture "empty rule field" "validate-content.ps1" $false "nonempty 规则 field" {
         param($fixture)
-        Edit-Text $fixture "references/java-core.md" { param($text); return [regex]::Replace($text, '(?m)^规则：[^\r\n]*', '规则：') }
+        Edit-Text $fixture "data/references/java-core.md" { param($text); return [regex]::Replace($text, '(?m)^规则：[^\r\n]*', '规则：') }
     }
     Check-Fixture "missing rule field" "validate-content.ps1" $false "nonempty 反例 field" {
         param($fixture)
-        Edit-Text $fixture "references/java-core.md" { param($text); return [regex]::new('(?m)^反例：[^\r\n]*\r?\n').Replace($text, '', 1) }
+        Edit-Text $fixture "data/references/java-core.md" { param($text); return [regex]::new('(?m)^反例：[^\r\n]*\r?\n').Replace($text, '', 1) }
     }
     Check-Fixture "duplicate rule field" "validate-content.ps1" $false "exactly one nonempty 适用 field" {
         param($fixture)
-        Edit-Text $fixture "references/java-core.md" { param($text); return $text.Replace('级别：MUST', ("适用：duplicate" + [char]10 + "级别：MUST")) }
+        Edit-Text $fixture "data/references/java-core.md" { param($text); return $text.Replace('级别：MUST', ("适用：duplicate" + [char]10 + "级别：MUST")) }
     }
     Check-Fixture "empty rule topic" "validate-content.ps1" $false "no numbered rules" {
         param($fixture)
-        Edit-Text $fixture "references/java-core.md" { param($text); return "# Empty topic" }
+        Edit-Text $fixture "data/references/java-core.md" { param($text); return "# Empty topic" }
     }
     Check-Fixture "malformed rule ID" "validate-content.ps1" $false "Malformed rule heading" {
         param($fixture)
-        Edit-Text $fixture "references/java-core.md" { param($text); return $text.Replace('## JAVA-001 ', '## JAVA-01 ') }
+        Edit-Text $fixture "data/references/java-core.md" { param($text); return $text.Replace('## JAVA-001 ', '## JAVA-01 ') }
     }
     Check-Fixture "unknown guide rule reference" "validate-content.ps1" $false "Unknown rule ID SEC-999" {
         param($fixture)

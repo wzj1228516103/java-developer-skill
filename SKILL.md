@@ -14,7 +14,7 @@ description: 为 Java/Spring 后端开发、设计、Review、测试、修复、
 3. 项目规范 > 个人偏好 > 通用建议；只在影响实现时读取 `project/<项目名>.md` 或 `memory.md`，空白和候选值不代表已确认选择。不要未经用户要求写入个人或项目配置。
 4. 按任务风险验证，区分实际运行结果与未执行的验证建议；只咨询、设计或 Review 时不修改代码。鉴权、缓存、幂等、消息等只在需求或代码涉及时处理。
 
-下列路径以本文件所在的仓库根目录为基准，而不是用户 Java 项目的工作目录；维护文档和 `scripts/` 不是 Java 规则来源。
+下列路径以本文件所在的仓库根目录为基准，而不是用户 Java 项目的工作目录；`data/maintenance/` 不是 Java 规则来源。
 
 ## 路由表
 
@@ -22,17 +22,17 @@ description: 为 Java/Spring 后端开发、设计、Review、测试、修复、
 
 | 任务或关键词 | 首选参考 |
 |---|---|
-| Java 基础、命名、日期、金额、集合、空值 | `references/java-core.md` |
-| Controller、DTO、REST、校验、分页、响应 | `references/spring-web.md`；需要时读 `references/contracts/` 对应契约 |
-| 异常、错误码、日志、`@ControllerAdvice` | `references/exception-validation.md`；需要时读 `references/contracts/` |
-| SQL、MyBatis、JPA、索引、分页、迁移 | `references/database-sql.md` |
-| 事务、幂等、状态机、Outbox、回滚 | `references/transaction-consistency.md` |
-| Redis、TTL、缓存、分布式锁、击穿 | `references/redis-cache.md` |
-| MQ、重复消费、重试、死信、顺序消息 | `references/message-queue.md` |
-| JWT、OAuth、Token、权限、租户、脱敏、上传、注入、SSRF | `references/security.md` |
-| 线程池、超时、重试、限流、熔断、锁 | `references/concurrency-reliability.md` |
-| JUnit、Mockito、集成测试、Testcontainers | `references/testing.md` |
-| 分层、DAO、Repository、DDD、模块、Entity/DTO/VO | `references/architecture.md` |
+| Java 基础、命名、日期、金额、集合、空值 | `data/references/java-core.md` |
+| Controller、DTO、REST、校验、分页、响应 | `data/references/spring-web.md`；需要时读 `data/references/contracts/` 对应契约 |
+| 异常、错误码、日志、`@ControllerAdvice` | `data/references/exception-validation.md`；需要时读 `data/references/contracts/` |
+| SQL、MyBatis、JPA、索引、分页、迁移 | `data/references/database-sql.md` |
+| 事务、幂等、状态机、Outbox、回滚 | `data/references/transaction-consistency.md` |
+| Redis、TTL、缓存、分布式锁、击穿 | `data/references/redis-cache.md` |
+| MQ、重复消费、重试、死信、顺序消息 | `data/references/message-queue.md` |
+| JWT、OAuth、Token、权限、租户、脱敏、上传、注入、SSRF | `data/references/security.md` |
+| 线程池、超时、重试、限流、熔断、锁 | `data/references/concurrency-reliability.md` |
+| JUnit、Mockito、集成测试、Testcontainers | `data/references/testing.md` |
+| 分层、DAO、Repository、DDD、模块、Entity/DTO/VO | `data/references/architecture.md` |
 
 ## 规则等级与裁决
 
@@ -49,7 +49,7 @@ description: 为 Java/Spring 后端开发、设计、Review、测试、修复、
 
 ## 生成、Review 与测试
 
-- 生成：遵守现有类型、接口及指定的 JDK/框架版本；跨包使用的类型、成员需有匹配的可见性。仅需要示意结构时读取 `templates/`，明确骨架的占位依赖，不把未验证的示意代码称为可运行实现。
+- 生成：遵守现有类型、接口及指定的 JDK/框架版本；跨包使用的类型、成员需有匹配的可见性。仅需要示意结构时读取 `data/templates/`，明确骨架的占位依赖，不把未验证的示意代码称为可运行实现。
 - Review：需求行为和用户点名风险优先。按证据报告问题，未知项标为待确认；缺少文件不证明认证缺失，没有执行计划不证明查询慢。规则等级不自动等于本次缺陷严重性。
 - 测试：围绕相关行为选择边界、异常、权限、并发和外部失败路径；Mock 调用次数和覆盖率不能证明数据库事务或协议行为。事务验证包含成功提交与失败回滚对照，明确异常类型及适用回滚规则，并从独立读取确认各步最终状态；未展示的配置标为待确认。涉及远程副作用时检验外部最终状态，缺少恢复协议时标注契约缺口。
 

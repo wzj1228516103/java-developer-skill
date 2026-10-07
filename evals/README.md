@@ -88,9 +88,9 @@ python ./evals/tests/config.Tests.py
 配置和仓库维护检查：
 
 ```powershell
-pwsh -NoProfile -File ./scripts/validate-registry.ps1
-pwsh -NoProfile -File ./scripts/validate-content.ps1
-pwsh -NoProfile -File ./tests/quality.Tests.ps1
+pwsh -NoProfile -File ./data/maintenance/scripts/validate-registry.ps1
+pwsh -NoProfile -File ./data/maintenance/scripts/validate-content.ps1
+pwsh -NoProfile -File ./data/maintenance/tests/quality.Tests.ps1
 git diff --check
 ```
 

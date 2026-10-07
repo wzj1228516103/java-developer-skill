@@ -1,7 +1,7 @@
 # Java Developer Skill
 
 <div align="center">
-  <img src="docs/images/java-developer-skill-logo.png" alt="Java Developer Skill 项目视觉图" width="260">
+  <img src="data/images/java-developer-skill-logo.png" alt="Java Developer Skill 项目视觉图" width="260">
   <p><strong>基于 AI 的 Java 开发全流程助手</strong></p>
 </div>
 
@@ -15,7 +15,7 @@
 
 ## 项目总览
 
-![Java Developer Skill 项目整体介绍：七个开发流程入口、技术栈与工程能力](docs/images/java-developer-skill-overview.png)
+![Java Developer Skill 项目整体介绍：七个开发流程入口、技术栈与工程能力](data/images/java-developer-skill-overview.png)
 
 本项目提供七种 Java 后端工作模式，用 `/java-dev`、`/java-review` 等写法表达任务意图；入口背后共享规则、契约和项目配置。`/java-*` 是本项目的入口简称，不是所有宿主都内置的命令；安装后的显式调用方法见[快速开始](#快速开始)。
 
@@ -190,7 +190,7 @@ Review 当前变更，重点检查权限、SQL 注入、事务边界、重复消
 
 - 📚 **后端领域覆盖**：Java 核心、Spring Web、异常校验、SQL、事务、Redis、消息队列、安全、并发、测试和架构。
 - 📖 **以黄山版为基础**：以《Java 开发手册（黄山版）》作为 Java 通用规约基线，再补充现代 Spring 后端的事务、缓存、消息和可靠性实践。
-- 🧭 **渐进加载**：总纲与入口引导 Agent 按需读取 `references/`，不默认加载全部主题；简单自包含题通常不读额外规则。这比全量加载轻，但不等于比不用 Skill 更省 Token。
+- 🧭 **渐进加载**：总纲与入口引导 Agent 按需读取 `data/references/`，不默认加载全部主题；简单自包含题通常不读额外规则。这比全量加载轻，但不等于比不用 Skill 更省 Token。
 - 🎯 **入口精准定位**：`/java-dev`、`/java-design`、`/java-review`、`/java-test` 等入口分别对应开发生命周期中的具体工作模式。
 - 🏷️ **保留风险分级**：每个入口使用 `BLOCKER / MUST / SHOULD / MAY` 区分安全红线、生产要求和团队建议。
 - ✅ **正例 + 反例导向**：规则和模板同时说明风险、推荐实现和例外条件，Review 时给出可执行修复。
@@ -241,17 +241,17 @@ Review 当前变更，重点检查权限、SQL 注入、事务边界、重复消
 
 | 模块 | 关注点 | 参考文件 |
 |---|---|---|
-| Java 核心 | 空值、时间、金额、集合、并发安全、资源释放 | `references/java-core.md` |
-| Spring Web/API | Controller、DTO、REST、参数校验、接口兼容 | `references/spring-web.md` |
-| 异常与日志 | 错误码、全局异常、日志级别、敏感信息 | `references/exception-validation.md` |
-| 数据库与 SQL | 参数绑定、索引、分页、N+1、迁移 | `references/database-sql.md` |
-| 事务与一致性 | 事务边界、幂等、状态机、补偿 | `references/transaction-consistency.md` |
-| Redis | TTL、缓存一致性、穿透/击穿/雪崩、分布式锁 | `references/redis-cache.md` |
-| 消息队列 | 重复消费、重试、死信、顺序、消息协议 | `references/message-queue.md` |
-| 安全 | 认证授权、越权、注入、SSRF、脱敏、上传 | `references/security.md` |
-| 并发与可靠性 | 线程池、超时、重试、限流、熔断、降级 | `references/concurrency-reliability.md` |
-| 测试 | 单元、集成、容器化依赖、幂等和并发测试 | `references/testing.md` |
-| 架构 | 分层、模块边界、依赖方向、领域对象隔离 | `references/architecture.md` |
+| Java 核心 | 空值、时间、金额、集合、并发安全、资源释放 | `data/references/java-core.md` |
+| Spring Web/API | Controller、DTO、REST、参数校验、接口兼容 | `data/references/spring-web.md` |
+| 异常与日志 | 错误码、全局异常、日志级别、敏感信息 | `data/references/exception-validation.md` |
+| 数据库与 SQL | 参数绑定、索引、分页、N+1、迁移 | `data/references/database-sql.md` |
+| 事务与一致性 | 事务边界、幂等、状态机、补偿 | `data/references/transaction-consistency.md` |
+| Redis | TTL、缓存一致性、穿透/击穿/雪崩、分布式锁 | `data/references/redis-cache.md` |
+| 消息队列 | 重复消费、重试、死信、顺序、消息协议 | `data/references/message-queue.md` |
+| 安全 | 认证授权、越权、注入、SSRF、脱敏、上传 | `data/references/security.md` |
+| 并发与可靠性 | 线程池、超时、重试、限流、熔断、降级 | `data/references/concurrency-reliability.md` |
+| 测试 | 单元、集成、容器化依赖、幂等和并发测试 | `data/references/testing.md` |
+| 架构 | 分层、模块边界、依赖方向、领域对象隔离 | `data/references/architecture.md` |
 
 ## 快速开始
 
@@ -390,6 +390,13 @@ message_queue: rocketmq
 java-developer-skill/
 ├── .codex-plugin/
 │   └── plugin.json             # Codex 插件清单
+├── .github/                    # Issue、PR 模板和 CI
+├── agents/openai.yaml          # Agent 界面元数据
+├── data/
+│   ├── images/                  # README 项目图片
+│   ├── references/              # 按主题加载的规则与公共契约
+│   ├── templates/               # Controller、DTO、Service 模板
+│   └── maintenance/             # 仓库校验脚本与离线测试
 ├── skills.registry.json        # 本项目的入口维护索引
 ├── skills/                     # 七种工作模式；发现方式由宿主决定
 │   ├── java-dev/
@@ -400,19 +407,11 @@ java-developer-skill/
 │   ├── java-refactor/
 │   └── java-rules/
 ├── SKILL.md                    # 总纲、路由、等级和适用边界
-├── agents/openai.yaml          # Agent 界面元数据
 ├── memory.md                   # 个人偏好
 ├── project/
 │   ├── README.md               # 项目配置说明
 │   └── _template.md            # 项目规范模板
-├── references/                 # 按主题加载的详细规则
-│   └── contracts/              # 响应、异常、错误码、分页、日志契约
-├── templates/                  # Controller、DTO、Service 模板
-├── scripts/                    # 仓库维护检查脚本
-│   ├── validate-content.ps1    # 规则编号和字段完整性检查
-│   └── validate-registry.ps1   # 入口注册一致性检查
-├── tests/quality.Tests.ps1     # 离线校验回归（含错误样本）
-└── .github/workflows/          # 静态质量检查
+└── evals/                      # Skill-up 配置、用例、Judge 与精选结果
 ```
 
 ## 维护检查
@@ -421,19 +420,19 @@ java-developer-skill/
 
 ```powershell
 # 检查版本、入口、frontmatter、路由和本地文件链接
-pwsh -NoProfile -File ./scripts/validate-registry.ps1
+pwsh -NoProfile -File ./data/maintenance/scripts/validate-registry.ps1
 
 # 检查规则编号、级别、适用、正例、反例和例外字段
-pwsh -NoProfile -File ./scripts/validate-content.ps1
+pwsh -NoProfile -File ./data/maintenance/scripts/validate-content.ps1
 
 # 用临时副本验证错误样本会被拦截，不修改仓库
-pwsh -NoProfile -File ./tests/quality.Tests.ps1
+pwsh -NoProfile -File ./data/maintenance/tests/quality.Tests.ps1
 
 # 检查补丁中是否有空白错误
 git diff --check
 ```
 
-新增入口时同步 `skills.registry.json` 和 README；清单的 `skills` 目录不变时无需逐项重复登记。修改版本时同步插件清单、注册表和 CHANGELOG。仓库约定 `name`、`description` 为非空单行 YAML 字符串；本地脚本验证该有限结构，不是通用 YAML 解析器。若本机已安装 skill-creator，还可以用其 `quick_validate.py` 做补充检查。
+新增入口时同步 `skills.registry.json` 和 README；清单的 `skills` 目录不变时无需逐项重复登记。修改版本时同步插件清单、注册表和 CHANGELOG。维护脚本位于 `data/maintenance/`，验证 `name`、`description` 等仓库约定，但不是通用 YAML 解析器。若本机已安装 skill-creator，还可以用其 `quick_validate.py` 做补充检查。
 
 CI 检查入口与规则结构，不等于验证所有 Java 示例可编译、插件已经安装或模型一定更准确。此前小样本对照未见明显正确性退化，也未证实稳定增益；Spring/MySQL 真实事务和并发行为尚未完成运行验证，不公布虚构通过率。
 

@@ -20,12 +20,12 @@ jobs:
 
       - name: Validate entry registry
         shell: pwsh
-        run: ./scripts/validate-registry.ps1
+        run: ./data/maintenance/scripts/validate-registry.ps1
 
       - name: Validate rule content
         shell: pwsh
-        run: ./scripts/validate-content.ps1
+        run: ./data/maintenance/scripts/validate-content.ps1
 
       - name: Test validators with valid and invalid fixtures
         shell: pwsh
-        run: ./tests/quality.Tests.ps1
+        run: ./data/maintenance/tests/quality.Tests.ps1

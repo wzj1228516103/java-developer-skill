@@ -9,7 +9,7 @@ skills:
   - source: local_path
     path: .
     # 安装运行资源，避免把 Git 历史和维护文件带入被测工作区。
-    include: [SKILL.md, "skills/**", "references/**", "templates/**", "agents/**", "project/**", memory.md]
+    include: [SKILL.md, "skills/**", "data/references/**", "data/templates/**", "agents/**", "project/**", memory.md]
 
 engine:
   # 使用当前 Codex CLI 作为被测 Agent Engine。

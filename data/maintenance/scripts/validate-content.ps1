@@ -1,6 +1,6 @@
 #requires -Version 7.0
 param(
-    [string]$Root = (Join-Path $PSScriptRoot "..")
+    [string]$Root = (Join-Path $PSScriptRoot "../../..")
 )
 
 $ErrorActionPreference = "Stop"
@@ -16,7 +16,7 @@ function Read-Utf8([string]$Path) {
 }
 
 $rootPath = (Resolve-Path -LiteralPath $Root).Path
-$referencesPath = Join-Path $rootPath "references"
+$referencesPath = Join-Path $rootPath "data/references"
 if (-not (Test-Path -LiteralPath $referencesPath -PathType Container)) {
     Fail "Missing references directory."
     exit 1
@@ -63,7 +63,7 @@ if ($ruleCount -eq 0) { Fail "No numbered rules found." }
 
 # Guide references must resolve to an actual rule, not an invented example ID.
 $guides = @(Get-ChildItem -LiteralPath $rootPath -File -Filter "*.md")
-foreach ($directory in @("skills", "references", "templates", "project")) {
+foreach ($directory in @("skills", "data/references", "data/templates", "project")) {
     $path = Join-Path $rootPath $directory
     if (Test-Path -LiteralPath $path -PathType Container) {
         $guides += @(Get-ChildItem -LiteralPath $path -Recurse -File -Filter "*.md")

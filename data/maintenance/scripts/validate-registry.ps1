@@ -1,6 +1,6 @@
 #requires -Version 7.0
 param(
-    [string]$Root = (Join-Path $PSScriptRoot "..")
+    [string]$Root = (Join-Path $PSScriptRoot "../../..")
 )
 
 $ErrorActionPreference = "Stop"
@@ -117,7 +117,7 @@ if (@(Compare-Object $actualSorted $entrySorted).Count -gt 0) { Fail "Skills dir
 # Validate concrete root routes. The documented project placeholder is not a file.
 $rootSkill = Read-Utf8 (Join-Path $rootPath "SKILL.md")
 $tick = [regex]::Escape([string][char]96)
-foreach ($route in [regex]::Matches($rootSkill, ($tick + '((?:references|templates|project)/[^' + $tick + '\r\n]+|memory\.md)' + $tick))) {
+foreach ($route in [regex]::Matches($rootSkill, ($tick + '((?:data/references|data/templates|project)/[^' + $tick + '\r\n]+|memory\.md)' + $tick))) {
     $relative = $route.Groups[1].Value
     if ($relative -eq 'project/<项目名>.md') { continue }
     $resolvedRoute = [IO.Path]::GetFullPath((Join-Path $rootPath $relative))
@@ -130,7 +130,7 @@ foreach ($route in [regex]::Matches($rootSkill, ($tick + '((?:references|templat
 
 # Local file links are checked offline; external URLs and anchors are not fetched.
 $markdownFiles = @(Get-ChildItem -LiteralPath $rootPath -File -Filter "*.md")
-foreach ($directory in @("skills", "references", "templates", "project", ".github", "docs")) {
+foreach ($directory in @("skills", "data", "project", ".github")) {
     $path = Join-Path $rootPath $directory
     if (Test-Path -LiteralPath $path -PathType Container) {
         $markdownFiles += @(Get-ChildItem -LiteralPath $path -Recurse -File -Filter "*.md")
