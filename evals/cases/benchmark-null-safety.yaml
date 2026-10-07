@@ -1,0 +1,22 @@
+# 稳定的用例标识。
+id: benchmark-null-safety
+title: 空值处理应使用明确校验或 Optional
+description: |
+  基准用例：验证 Service 不通过 return null 或吞异常处理空值，并能区分不存在和系统异常。
+tag: benchmark
+input:
+  prompt: |
+    这是文本交付任务：请在最终回复中给出所需代码、设计或审查结论。仅查看题目提供的上下文和适用的 Skill 文件，无需创建工程、写入工作区文件或执行构建；评分对象是最终回复。
+    实现一个 Java 17 的 UserService，根据 userId 查询用户并返回用户昵称。Repository 可能返回空结果，也可能抛出数据库异常。请给出关键代码和异常处理方式，要求说明调用方如何处理用户不存在。
+
+expect:
+  must_contain:
+    - "UserService"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        any: ["Optional", "Objects.requireNonNull", "@NotNull", "orElseThrow", "NotFoundException"]
+    - output_contains:
+        not: ["return null;", "printStackTrace()", "catch (Exception e) {\n}", "catch(Exception e){}"]

@@ -1,0 +1,24 @@
+# 稳定的用例标识。
+id: benchmark-date-time-api
+title: 日期时间应使用 java.time API
+description: |
+  基准用例：验证日期时间实现是否避免 Date 和 SimpleDateFormat，并使用线程安全的 java.time API。
+tag: benchmark
+input:
+  prompt: |
+    这是文本交付任务：请在最终回复中给出所需代码、设计或审查结论。仅查看题目提供的上下文和适用的 Skill 文件，无需创建工程、写入工作区文件或执行构建；评分对象是最终回复。
+    用 Java 17 写一个 DateUtils 工具类，提供：格式化当前时间为 yyyy-MM-dd HH:mm:ss、计算两个日期相差天数、把字符串解析为日期时间。请给出完整代码，并说明线程安全选择。
+
+expect:
+  must_contain:
+    - "DateUtils"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        any: ["LocalDateTime", "LocalDate", "Instant", "ZonedDateTime"]
+    - output_contains:
+        any: ["DateTimeFormatter", "DateTimeFormatter.ofPattern"]
+    - output_contains:
+        not: ["new SimpleDateFormat", "SimpleDateFormat sdf", "SimpleDateFormat format", "import java.util.Date;"]

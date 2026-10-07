@@ -1,0 +1,287 @@
+{
+  "schema_version": "input-verification-v1",
+  "checked_at_utc": "2026-10-07T02:50:40.7076194Z",
+  "evaluation_revision": "holdout-v6",
+  "manifest_sha256": "b164eee96b4a1db0ad022991b7645d8e8b5904a59fd22f88ea62bd6fa3634ad6",
+  "total": 46,
+  "matched": 46,
+  "all_match": true,
+  "files": [
+    {
+      "path": "agents/openai.yaml",
+      "expected_sha256": "517b87c8480a8017fec1ac4d96d1eefbef8998a357426e9d1ea9f10f7bbfcc75",
+      "actual_sha256": "517b87c8480a8017fec1ac4d96d1eefbef8998a357426e9d1ea9f10f7bbfcc75",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/holdout-batch-import.yaml",
+      "expected_sha256": "5c8c21a0c85d0709ddf76b80ef0bf1aa1caf9c2be421ee232577da72a7a3b480",
+      "actual_sha256": "5c8c21a0c85d0709ddf76b80ef0bf1aa1caf9c2be421ee232577da72a7a3b480",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/holdout-dynamic-order-by.yaml",
+      "expected_sha256": "65c5cf431ad115489f44c7e12604ce946c03ff26fff7e12cd30f1ad9ee5ad90c",
+      "actual_sha256": "65c5cf431ad115489f44c7e12604ce946c03ff26fff7e12cd30f1ad9ee5ad90c",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/holdout-payment-unknown-outcome.yaml",
+      "expected_sha256": "bea805bb303ab2efc3e969fe5dab8e06c431b94f2777ac9b98c54a31525a69bc",
+      "actual_sha256": "bea805bb303ab2efc3e969fe5dab8e06c431b94f2777ac9b98c54a31525a69bc",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/holdout-resource-lifecycle.yaml",
+      "expected_sha256": "1be5ce8cc7fcaa75578d993ea0349bf725ac82e675b991e9e5379bb26390484a",
+      "actual_sha256": "1be5ce8cc7fcaa75578d993ea0349bf725ac82e675b991e9e5379bb26390484a",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/holdout-transaction-self-invocation.yaml",
+      "expected_sha256": "2a9b41be3ff225a1cb4ae6b27b5d0c2f70f494c14eb019fc1488fb907e0aba32",
+      "actual_sha256": "2a9b41be3ff225a1cb4ae6b27b5d0c2f70f494c14eb019fc1488fb907e0aba32",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/regression-transaction-rollback-review.yaml",
+      "expected_sha256": "4d13b1074d04f5001681150197e3b297df33c88ae43025b2d7fd9b1482362176",
+      "actual_sha256": "4d13b1074d04f5001681150197e3b297df33c88ae43025b2d7fd9b1482362176",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/holdout-judge-calibration.json",
+      "expected_sha256": "29de308f9fd2b3fde3b5f1e2656459652f394080b2097d0292f6f409eab9be7f",
+      "actual_sha256": "29de308f9fd2b3fde3b5f1e2656459652f394080b2097d0292f6f409eab9be7f",
+      "matched": true
+    },
+    {
+      "path": "evals/holdout.yaml",
+      "expected_sha256": "c681cd2e6c8d28fe883b39720e0fa9c2c5801bf5f2f69c23bca95e70e012c4f6",
+      "actual_sha256": "c681cd2e6c8d28fe883b39720e0fa9c2c5801bf5f2f69c23bca95e70e012c4f6",
+      "matched": true
+    },
+    {
+      "path": "evals/scripts/calibrate-holdout-judges.py",
+      "expected_sha256": "ec4a1f63b25cfc6a9c92f722f6041025b09ee432d31e79186eaa6c62316728e5",
+      "actual_sha256": "ec4a1f63b25cfc6a9c92f722f6041025b09ee432d31e79186eaa6c62316728e5",
+      "matched": true
+    },
+    {
+      "path": "evals/scripts/extract-metrics.ps1",
+      "expected_sha256": "cc1a9c547c9276944ba20fa8b4cbcd1c1f88085710e5624e945d5abb31417e03",
+      "actual_sha256": "cc1a9c547c9276944ba20fa8b4cbcd1c1f88085710e5624e945d5abb31417e03",
+      "matched": true
+    },
+    {
+      "path": "evals/scripts/extract-stability.ps1",
+      "expected_sha256": "6b7a05d421881b01413040d5dd365bdac6dfad22e8cae38020f3d0b0f76ae30a",
+      "actual_sha256": "6b7a05d421881b01413040d5dd365bdac6dfad22e8cae38020f3d0b0f76ae30a",
+      "matched": true
+    },
+    {
+      "path": "evals/scripts/run-eval.ps1",
+      "expected_sha256": "659a8debc778c5ef7babbc32dec1c607eb4156dd856bc9946ce5303187df1191",
+      "actual_sha256": "659a8debc778c5ef7babbc32dec1c607eb4156dd856bc9946ce5303187df1191",
+      "matched": true
+    },
+    {
+      "path": "evals/tests/config.Tests.py",
+      "expected_sha256": "22bbd5f1cbbd4938ba88e31eb37372d5d6222b36a30d463ad4ef53e53b57920a",
+      "actual_sha256": "22bbd5f1cbbd4938ba88e31eb37372d5d6222b36a30d463ad4ef53e53b57920a",
+      "matched": true
+    },
+    {
+      "path": "evals/tests/stability.Tests.ps1",
+      "expected_sha256": "dca2ea4ea94e43b36aa02303f90aac2054045cf1ab1f150789a1f177d99d5fc2",
+      "actual_sha256": "dca2ea4ea94e43b36aa02303f90aac2054045cf1ab1f150789a1f177d99d5fc2",
+      "matched": true
+    },
+    {
+      "path": "evals/transaction-regression.yaml",
+      "expected_sha256": "1a8b7fc2a223d2e1e02799dad012944c350337c57389196c1aa78bf15de5199e",
+      "actual_sha256": "1a8b7fc2a223d2e1e02799dad012944c350337c57389196c1aa78bf15de5199e",
+      "matched": true
+    },
+    {
+      "path": "memory.md",
+      "expected_sha256": "eb695b43b9762df152c8b1e1dc5aba671c1bbad21456bad04da12bc7fbfaef66",
+      "actual_sha256": "eb695b43b9762df152c8b1e1dc5aba671c1bbad21456bad04da12bc7fbfaef66",
+      "matched": true
+    },
+    {
+      "path": "project/_template.md",
+      "expected_sha256": "914750e799f83d40be9f126bea86e58c827fdc43273d41218bf7ac61ea9ff00c",
+      "actual_sha256": "914750e799f83d40be9f126bea86e58c827fdc43273d41218bf7ac61ea9ff00c",
+      "matched": true
+    },
+    {
+      "path": "project/README.md",
+      "expected_sha256": "58e45b6175646d0d0d60ddf155d73b5cf8521cd74dc7c26c907d4a5f29bb9abf",
+      "actual_sha256": "58e45b6175646d0d0d60ddf155d73b5cf8521cd74dc7c26c907d4a5f29bb9abf",
+      "matched": true
+    },
+    {
+      "path": "references/architecture.md",
+      "expected_sha256": "a13a488bb519ce5034fd3ea0db38e119f056cb1113f996fb8cea455bcf1b5624",
+      "actual_sha256": "a13a488bb519ce5034fd3ea0db38e119f056cb1113f996fb8cea455bcf1b5624",
+      "matched": true
+    },
+    {
+      "path": "references/concurrency-reliability.md",
+      "expected_sha256": "68d607db773ecc8d812addbee16242020b9254e4fcdefacf7da0d615288a980c",
+      "actual_sha256": "68d607db773ecc8d812addbee16242020b9254e4fcdefacf7da0d615288a980c",
+      "matched": true
+    },
+    {
+      "path": "references/contracts/error-code.md",
+      "expected_sha256": "7e85c404cf4bba400054fa41e89f521955d7d7afedd5ba177b62592a777c0512",
+      "actual_sha256": "7e85c404cf4bba400054fa41e89f521955d7d7afedd5ba177b62592a777c0512",
+      "matched": true
+    },
+    {
+      "path": "references/contracts/exception.md",
+      "expected_sha256": "b10ec26e59ef8843ebbb9da318e3c9fdaea830de4f02875961ec47d444441934",
+      "actual_sha256": "b10ec26e59ef8843ebbb9da318e3c9fdaea830de4f02875961ec47d444441934",
+      "matched": true
+    },
+    {
+      "path": "references/contracts/logging.md",
+      "expected_sha256": "a69506a53bad0ba164ccabd1ef8196f9d6b6e536c27a4cb345bd2f0b498fb0ba",
+      "actual_sha256": "a69506a53bad0ba164ccabd1ef8196f9d6b6e536c27a4cb345bd2f0b498fb0ba",
+      "matched": true
+    },
+    {
+      "path": "references/contracts/pagination.md",
+      "expected_sha256": "a2247d7c060d4478b56f594f298578adc4d553ed294321e47c7cbc4bd5b76eeb",
+      "actual_sha256": "a2247d7c060d4478b56f594f298578adc4d553ed294321e47c7cbc4bd5b76eeb",
+      "matched": true
+    },
+    {
+      "path": "references/contracts/response.md",
+      "expected_sha256": "770f18cf5e599e04d511ac48eb5a634cbb9c6185f3123fa92ed8198ea78762c9",
+      "actual_sha256": "770f18cf5e599e04d511ac48eb5a634cbb9c6185f3123fa92ed8198ea78762c9",
+      "matched": true
+    },
+    {
+      "path": "references/database-sql.md",
+      "expected_sha256": "2a6370d3c880751c864755bd3cb1af576d8ab95895246a58942ef2e8806328de",
+      "actual_sha256": "2a6370d3c880751c864755bd3cb1af576d8ab95895246a58942ef2e8806328de",
+      "matched": true
+    },
+    {
+      "path": "references/exception-validation.md",
+      "expected_sha256": "71812d29335c7d6227e365ba472e2595d74f60a11263c8bc5d1972bc6f2d11f2",
+      "actual_sha256": "71812d29335c7d6227e365ba472e2595d74f60a11263c8bc5d1972bc6f2d11f2",
+      "matched": true
+    },
+    {
+      "path": "references/java-core.md",
+      "expected_sha256": "c0661068da4def7f72a6047ffe7ea412f89a71ef0a915d45bbb9f1d6f190ddf9",
+      "actual_sha256": "c0661068da4def7f72a6047ffe7ea412f89a71ef0a915d45bbb9f1d6f190ddf9",
+      "matched": true
+    },
+    {
+      "path": "references/message-queue.md",
+      "expected_sha256": "d34860d42aaf0fe009929a27cf754d853b6b0f91f3860f30e908b86715fbe9fa",
+      "actual_sha256": "d34860d42aaf0fe009929a27cf754d853b6b0f91f3860f30e908b86715fbe9fa",
+      "matched": true
+    },
+    {
+      "path": "references/redis-cache.md",
+      "expected_sha256": "51d29f035fd4263df083eceef9788b45aab6f089bcc62a1b96bea22ce3822dfa",
+      "actual_sha256": "51d29f035fd4263df083eceef9788b45aab6f089bcc62a1b96bea22ce3822dfa",
+      "matched": true
+    },
+    {
+      "path": "references/security.md",
+      "expected_sha256": "25214e20e78d3f25bf7054c980359dab0cdefdfe4d5ce2baf92609ab3b02c8d2",
+      "actual_sha256": "25214e20e78d3f25bf7054c980359dab0cdefdfe4d5ce2baf92609ab3b02c8d2",
+      "matched": true
+    },
+    {
+      "path": "references/spring-web.md",
+      "expected_sha256": "59427e7741e6d67a2993a2665212a2031b2c91ad9391f4da0c6b4990616c951b",
+      "actual_sha256": "59427e7741e6d67a2993a2665212a2031b2c91ad9391f4da0c6b4990616c951b",
+      "matched": true
+    },
+    {
+      "path": "references/testing.md",
+      "expected_sha256": "10eb004c6d4d9a9032943172d8ae6c8a14f6dc822f6dcdcbe5c9c204c2ea4dbe",
+      "actual_sha256": "10eb004c6d4d9a9032943172d8ae6c8a14f6dc822f6dcdcbe5c9c204c2ea4dbe",
+      "matched": true
+    },
+    {
+      "path": "references/transaction-consistency.md",
+      "expected_sha256": "2cb4da88cfaf07ce6d5ce25af72cc216ab323272f5dec184c51398d5b51da058",
+      "actual_sha256": "2cb4da88cfaf07ce6d5ce25af72cc216ab323272f5dec184c51398d5b51da058",
+      "matched": true
+    },
+    {
+      "path": "SKILL.md",
+      "expected_sha256": "a8699cd80684953574a8293e3af2157462a03201a928b43665a9c1c9571f478d",
+      "actual_sha256": "a8699cd80684953574a8293e3af2157462a03201a928b43665a9c1c9571f478d",
+      "matched": true
+    },
+    {
+      "path": "skills/java-design/SKILL.md",
+      "expected_sha256": "758374cc0e69ea050ae695b6701f307c08dbea7f96e969883baf4bee1fe455b2",
+      "actual_sha256": "758374cc0e69ea050ae695b6701f307c08dbea7f96e969883baf4bee1fe455b2",
+      "matched": true
+    },
+    {
+      "path": "skills/java-dev/SKILL.md",
+      "expected_sha256": "6e94e64e3a6319d00d09637eaf1ffbdd9d0292f65d0d69a0a8be9aec05f084c3",
+      "actual_sha256": "6e94e64e3a6319d00d09637eaf1ffbdd9d0292f65d0d69a0a8be9aec05f084c3",
+      "matched": true
+    },
+    {
+      "path": "skills/java-fix/SKILL.md",
+      "expected_sha256": "407c2c8a9575e5d942e658bb98a703dcfa7fd02763e7f635fd3330aa99a2dcab",
+      "actual_sha256": "407c2c8a9575e5d942e658bb98a703dcfa7fd02763e7f635fd3330aa99a2dcab",
+      "matched": true
+    },
+    {
+      "path": "skills/java-refactor/SKILL.md",
+      "expected_sha256": "cdd9ac9f02b2d3a94ec8cb4a01a493db344c7b5127bbedb7697d188fba50c714",
+      "actual_sha256": "cdd9ac9f02b2d3a94ec8cb4a01a493db344c7b5127bbedb7697d188fba50c714",
+      "matched": true
+    },
+    {
+      "path": "skills/java-review/SKILL.md",
+      "expected_sha256": "b9d1e11f0ecca91e478b45ea04a454ec6d77861631651a89c830c5f4b04b1026",
+      "actual_sha256": "b9d1e11f0ecca91e478b45ea04a454ec6d77861631651a89c830c5f4b04b1026",
+      "matched": true
+    },
+    {
+      "path": "skills/java-rules/SKILL.md",
+      "expected_sha256": "4ae56e6e543d1eedf39e269781498877a099d6036426ec70b50c813ca800caaf",
+      "actual_sha256": "4ae56e6e543d1eedf39e269781498877a099d6036426ec70b50c813ca800caaf",
+      "matched": true
+    },
+    {
+      "path": "skills/java-test/SKILL.md",
+      "expected_sha256": "8c3850518daf9d2a7ac899c738c003c1c1dfb4b8fee9b58e1de524db1e5d2bcd",
+      "actual_sha256": "8c3850518daf9d2a7ac899c738c003c1c1dfb4b8fee9b58e1de524db1e5d2bcd",
+      "matched": true
+    },
+    {
+      "path": "templates/controller.md",
+      "expected_sha256": "ef871c8d4961747878522b806ef248b0295bd3f9e3fd24071f3cebf1cd769f94",
+      "actual_sha256": "ef871c8d4961747878522b806ef248b0295bd3f9e3fd24071f3cebf1cd769f94",
+      "matched": true
+    },
+    {
+      "path": "templates/dto.md",
+      "expected_sha256": "5cd45f3165f215e4dc9e18a4e974c78d6773c110e0270a1af8decc29be4cac28",
+      "actual_sha256": "5cd45f3165f215e4dc9e18a4e974c78d6773c110e0270a1af8decc29be4cac28",
+      "matched": true
+    },
+    {
+      "path": "templates/service.md",
+      "expected_sha256": "ce5842ec37b5d7f65893add1fa210c6eb902c688425c286811ea7d5af7854fb7",
+      "actual_sha256": "ce5842ec37b5d7f65893add1fa210c6eb902c688425c286811ea7d5af7854fb7",
+      "matched": true
+    }
+  ]
+}

@@ -1,0 +1,1098 @@
+{
+  "schema_version": "calibration-summary-v1",
+  "purpose": "固定输出的 Judge 语义校准，非被测 Skill 质量数据",
+  "model": "gpt-6.1-sol",
+  "archived_judge_executions": 29,
+  "unique_samples_current_rubric": 20,
+  "all_current_samples_matched": true,
+  "results": [
+    {
+      "sample_id": "resource-valid-planned-tests",
+      "case_id": "holdout-resource-lifecycle",
+      "case_sha256": "1be5ce8cc7fcaa75578d993ea0349bf725ac82e675b991e9e5379bb26390484a",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确指出“response 与 body 均需要显式关闭”，并说明当前代码在成功返回和 mapper 抛 IOException 时都不能保证释放。",
+              "指出“GC 不保证确定关闭”，说明不能依赖垃圾回收替代显式关闭。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "提供 try-with-resources 方案，依次获取 response 和 body，退出时先关闭 body 再关闭 response，覆盖解析成功与失败路径。",
+              "明确说明获取 body 失败时会关闭已获取的 response；get 未返回 response 就抛异常时，调用方没有已获取资源可关闭。",
+              "对客户端内部清理说明“具体实现需确认”，并提及关闭异常可成为 suppressed，体现异常安全考虑。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "设计使用“记录 close 调用的 stub”，在成功和 mapper 抛 IOException 时断言两资源关闭，提供了可观察的关闭验证。",
+              "补充 byteStream 初始化失败时验证 response 关闭，以及 get 抛异常时不伪造已返回响应。",
+              "仅描述测试设计，没有声称执行过测试或构建；没有编造 httpClient 或 mapper 的额外契约。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 17.781,
+      "source": "evals/results/2026-10-07-judge-calibration-v3/result.json"
+    },
+    {
+      "sample_id": "resource-unsafe-gc",
+      "case_id": "holdout-resource-lifecycle",
+      "case_sha256": "1be5ce8cc7fcaa75578d993ea0349bf725ac82e675b991e9e5379bb26390484a",
+      "expected": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "actual": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": false,
+            "evidence": [
+              "输出称“资源会被 GC 自动及时关闭，不需要管理 response 和 body”，否认两者的关闭责任，并错误地把 GC 当作显式关闭的替代。"
+            ],
+            "failures": [
+              "未识别 response 和 body 均需关闭，也未证明成功及解析异常路径能够确定关闭。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": false,
+            "evidence": [
+              "输出称“发生 IOException 就直接返回空，不需要 finally”，未提供 try-with-resources 或等价 finally 方案。"
+            ],
+            "failures": [
+              "未确保解析成功、解析失败及客户端异常路径释放已获取资源，也未考虑 response/body 获取顺序与异常安全。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": false,
+            "evidence": [
+              "输出的测试设计仅为“测试只断言返回值不为空”，没有观察资源关闭行为。"
+            ],
+            "failures": [
+              "未使用可观察的 Closeable fake/spy 或等价测试替身验证成功和异常路径均关闭资源。"
+            ]
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 13.984,
+      "source": "evals/results/2026-10-07-judge-calibration-v3/result.json"
+    },
+    {
+      "sample_id": "transaction-valid-equivalent-preconditions",
+      "case_id": "holdout-transaction-self-invocation",
+      "case_sha256": "2a9b41be3ff225a1cb4ae6b27b5d0c2f70f494c14eb019fc1488fb907e0aba32",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "引用具体调用 this.settle，明确指出“是类内自调用，默认 Spring 代理不会拦截”。",
+              "明确说明“注解存在不能证明两步在同一事务”，没有将 @Transactional 的存在视为事务已生效。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "提出“拆成独立事务 Bean，通过注入的代理调用”，让 markPaid 和 appendLedger 共用本地事务。",
+              "将 notificationClient 安排在提交后发送，并说明它是“不能随数据库回滚的远程副作用”。",
+              "将 Outbox 明确表述为可新增方案，并注明“不是已有 API”，没有虚构项目已有能力。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "明确表示事务配置和异常回滚语义需要按实际项目确认，并将未展示的 AspectJ 模式列为待确认例外。",
+              "建议集成测试不使用测试外层事务、通过容器代理调用，成功后从新事务读取并验证两步均提交。",
+              "建议第二步抛出未捕获 RuntimeException，验证两步均未提交；检查型异常则按实际回滚规则验证，没有宣称任意异常都会回滚。",
+              "提出通知失败时检查本地已提交及可追踪重试记录，并明确“这是测试建议”，没有声称已运行验证。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 18.156,
+      "source": "evals/results/2026-10-07-judge-calibration-v3/result.json"
+    },
+    {
+      "sample_id": "transaction-unsafe-self-invocation",
+      "case_id": "holdout-transaction-self-invocation",
+      "case_sha256": "2a9b41be3ff225a1cb4ae6b27b5d0c2f70f494c14eb019fc1488fb907e0aba32",
+      "expected": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "actual": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": false,
+            "evidence": [
+              "输出称“settle 上有 @Transactional，所以 this.settle 一定触发默认 Spring 代理”。"
+            ],
+            "failures": [
+              "未识别 this.settle(...) 是同一对象自调用，在默认 Spring 代理模式下绕过事务代理；反而将注解存在错误地当作事务生效的证据。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": false,
+            "evidence": [
+              "输出称“通知也会跟数据库一起回滚，不需要区分本地和外部状态”。"
+            ],
+            "failures": [
+              "未说明本地两步写入应由外部代理事务覆盖，也未提出可行的代理调用调整方向。",
+              "错误地认为外部通知能随数据库事务回滚，未区分本地事务和不可控外部调用。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": false,
+            "evidence": [
+              "输出称“任何异常都会自动回滚”。",
+              "输出称“Mock 验证两个 repository 被调用就能证明提交和回滚；我已验证通过”。"
+            ],
+            "failures": [
+              "未将 AspectJ 或其他未展示模式列为待确认例外。",
+              "未提供成功提交、第二步失败后两步原子性及通知失败的有效验证方案；Mock 调用记录不能证明实际提交或回滚。",
+              "错误地宣称任意异常都会回滚，未限定未捕获运行时异常或依据实际异常类型及回滚规则验证。",
+              "无运行证据却声称已验证通过。"
+            ]
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 17.141,
+      "source": "evals/results/2026-10-07-judge-calibration-v3/result.json"
+    },
+    {
+      "sample_id": "transaction-missing-rollback-preconditions",
+      "case_id": "holdout-transaction-self-invocation",
+      "case_sha256": "2a9b41be3ff225a1cb4ae6b27b5d0c2f70f494c14eb019fc1488fb907e0aba32",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": false
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": false
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "引用“this.settle”，并指出其在“默认代理模式下绕过事务拦截”，识别了同一对象自调用绕过 Spring 事务代理的问题。",
+              "明确说明“不因注解存在就生效”，没有将注解存在当作事务已生效。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "提出“拆为独立事务 Bean，使本地两步经过代理”，说明两步本地写入应由代理事务覆盖。",
+              "提出“通知在提交后发送”，说明“远程副作用不可被本地回滚”，并将 Outbox 表述为可新增方案，未虚构已有 API。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": false,
+            "evidence": [
+              "将“AspectJ 未展示应确认”列为待确认例外，没有编造事务配置。",
+              "提出验证成功提交、第二步失败时第一步撤销，以及通知失败后的数据库和重试状态，未声称已运行验证。",
+              "明确宣称“任意异常都必然让两步回滚”，没有限定未捕获运行时异常，也没有说明按实际异常类型和回滚规则验证。"
+            ],
+            "failures": [
+              "错误地断言任意异常都会回滚；第二步失败的原子性验证必须使用符合回滚规则的异常，例如未捕获运行时异常，或明确依据实际异常类型和配置的回滚规则验证。"
+            ]
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 58.312,
+      "source": "evals/results/2026-10-07-judge-calibration-v3/result.json"
+    },
+    {
+      "sample_id": "rollback-valid-matrix-with_skill",
+      "case_id": "regression-transaction-rollback-review",
+      "case_sha256": "4d13b1074d04f5001681150197e3b297df33c88ae43025b2d7fd9b1482362176",
+      "expected": {
+        "criterion-2": true,
+        "criterion-3": true,
+        "criterion-1": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确指出“IOException 是检查型异常”，且“默认 Spring 事务规则下……不会因此回滚”。",
+              "将 rollbackFor 放在独立配置场景“@Transactional(rollbackFor = IOException.class)”中，没有宣称原代码已配置。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "矩阵区分成功提交、默认未捕获 IOException 提交、配置 rollbackFor 后 IOException 回滚、捕获后正常返回提交以及未捕获运行时异常回滚。",
+              "明确说明“捕获异常后正常返回，即使配置了 rollbackFor，也不会仅因该异常发生过而回滚”，并单独说明已有 rollback-only 标记的例外前提。",
+              "针对 ledger mock 直接抛异常、第二步未真实写入的情况，分别给出默认配置与 rollbackFor 配置下的最终状态预期。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "指出 verify(repository).markIssued(id) 只能证明调用，不能证明数据库写入、提交或回滚。",
+              "指出测试外层 @Transactional 的最终回滚可能来自测试框架，不能作为生产方法事务有效的证据。",
+              "建议从 Spring 容器取得真实代理、使用真实数据库和 repository、移除测试外层事务，并在新的读取事务中查询两步最终状态。",
+              "设计了成功提交及各异常路径，并建议第二步真实写入后再抛异常来验证两步回滚。",
+              "明确声明“未创建文件、未执行测试”，没有声称已经运行验证。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 16.969,
+      "source": "evals/results/2026-10-07-rollback-judge-calibration-v4/result.json"
+    },
+    {
+      "sample_id": "rollback-valid-matrix-without_skill",
+      "case_id": "regression-transaction-rollback-review",
+      "case_sha256": "4d13b1074d04f5001681150197e3b297df33c88ae43025b2d7fd9b1482362176",
+      "expected": {
+        "criterion-2": true,
+        "criterion-3": true,
+        "criterion-1": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确说明“默认 @Transactional 不因检查型 IOException 回滚；异常传出代理时，事务通常提交”。",
+              "矩阵分别列出“默认配置”和“rollbackFor = IOException.class”的条件场景，没有宣称原代码已经配置 rollbackFor。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "明确说明“未捕获的 RuntimeException 默认触发回滚”，以及捕获 IOException 后正常返回时“代理没有看到异常”，不会仅凭 rollbackFor 触发回滚。",
+              "条件矩阵准确区分默认检查型异常传出、匹配 rollbackFor 的异常传出、捕获后正常返回、未捕获运行时异常和成功路径的提交或回滚预期。",
+              "限定两步参与同一事务且没有其他组件设置 rollback-only，并解释下层代理标记 rollback-only 时可能出现 UnexpectedRollbackException。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "指出 verify(repository).markIssued(id) 只能证明调用，不能证明提交或回滚，并明确测试事务结束时自动回滚不能证明生产事务行为。",
+              "建议通过 Spring 注入的服务代理调用，使用真实数据库 repository，避免 new 或类内自调用绕过代理。",
+              "建议测试方法不加 @Transactional，或使用 NOT_SUPPORTED 避免外层测试事务掩盖边界，并在服务调用结束后从新事务查询发票与账本最终状态。",
+              "设计了成功提交及各异常路径，还提出两步真实写入后、事务结束前注入故障以验证原子性；全文为验证方案，没有声称已经运行。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 19.844,
+      "source": "evals/results/2026-10-07-rollback-judge-calibration-v4/result.json"
+    },
+    {
+      "sample_id": "rollback-unsafe-mock-proof",
+      "case_id": "regression-transaction-rollback-review",
+      "case_sha256": "4d13b1074d04f5001681150197e3b297df33c88ae43025b2d7fd9b1482362176",
+      "expected": {
+        "criterion-2": false,
+        "criterion-3": false,
+        "criterion-1": false
+      },
+      "actual": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": false,
+            "evidence": [
+              "输出称“IOException 和所有被捕获异常默认都会触发回滚”。",
+              "输出称“原代码已经配置 rollbackFor”。"
+            ],
+            "failures": [
+              "未说明 IOException 是检查型异常，默认 @Transactional 不保证因其回滚，反而宣称默认会回滚。",
+              "无依据地宣称原代码已配置 rollbackFor，未将其限定为建议、待确认契约或假设配置。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": false,
+            "evidence": [
+              "输出将“所有被捕获异常”一概判定为默认触发回滚。",
+              "全文未提供正常返回、未捕获运行时异常和检查型异常对应的条件矩阵。"
+            ],
+            "failures": [
+              "未说明捕获异常后正常返回不会自动触发异常回滚。",
+              "未说明未捕获运行时异常默认回滚，也未正确区分不同异常规则下的提交与回滚预期。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": false,
+            "evidence": [
+              "输出称“JUnit 的外层事务最终回滚和 verify(repository) 就能证明生产服务两步回滚”。",
+              "输出称“不需要真实数据库或提交对照”。",
+              "输出称“测试已通过”。"
+            ],
+            "failures": [
+              "错误地将 Mock 调用验证和测试外层事务最终回滚视为生产事务回滚证据。",
+              "未建议通过真实 Spring 代理调用、避免测试外层事务掩盖服务边界，并从新事务读取两步最终状态。",
+              "未设计成功提交对照及各异常路径，反而否定提交对照的必要性。",
+              "没有运行证据却宣称测试已通过。"
+            ]
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 22.828,
+      "source": "evals/results/2026-10-07-rollback-judge-calibration-v4/result.json"
+    },
+    {
+      "sample_id": "dynamic-valid-parameter-flow",
+      "case_id": "holdout-dynamic-order-by",
+      "case_sha256": "65c5cf431ad115489f44c7e12604ce946c03ff26fff7e12cd30f1ad9ee5ad90c",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确指出“${sort}、${direction} 是直接 SQL 文本替换”，并说明不可信输入进入时存在注入风险。",
+              "给出固定白名单映射“id→id、total→total，asc→ASC、desc→DESC”，且“未知字段及方向直接拒绝”，未回退拼接原始请求。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "明确认可“#{tenantId}、#{offset}、#{size} 是值绑定，保留这些绑定”。",
+              "要求“offset>=0，size>0 且不超过上限”，覆盖偏移及页大小的合法下界、上界。",
+              "明确指出“列名和方向不能机械替换成 #{}”。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "提出“验证映射后的参数流转和最终 SQL”，覆盖白名单映射与参数流转验证。",
+              "测试方案包含“未知值、注释、逗号、空串、方向注入及 offset=-1、size=0、超上限”，覆盖异常输入和分页边界。",
+              "明确说明“当前 Long/数值的值绑定不能据此说已证实可注入”，并将验证限定为“测试设计”，未声称已执行数据库测试。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 15.937,
+      "source": "evals/results/2026-10-07-dynamic-judge-calibration-v5/result.json"
+    },
+    {
+      "sample_id": "dynamic-unsafe-identifiers",
+      "case_id": "holdout-dynamic-order-by",
+      "case_sha256": "65c5cf431ad115489f44c7e12604ce946c03ff26fff7e12cd30f1ad9ee5ad90c",
+      "expected": {
+        "criterion-1": false,
+        "criterion-2": false
+      },
+      "actual": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": false,
+            "evidence": [
+              "输出称“sort 和 direction 都可以直接使用用户传入的字符串，白名单没有必要”。"
+            ],
+            "failures": [
+              "未识别 ${sort} 和 ${direction} 的 SQL 文本替换风险，反而认可直接信任请求字符串，未提供受控枚举或白名单映射。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": false,
+            "evidence": [
+              "输出称“把它们换成 #{sort} #{direction} 就会按用户指定的列名和方向排序；tenantId、offset、size 保持绑定”。"
+            ],
+            "failures": [
+              "错误声称使用值绑定可以动态指定排序列名和方向。",
+              "虽认可 tenantId、offset、size 保持绑定，但未要求 offset 非负，也未规定 size 的合法下界和上界。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": false,
+            "evidence": [
+              "输出仅提出“验证正常输入即可”。"
+            ],
+            "failures": [
+              "验证方案未覆盖白名单映射、异常输入和分页边界。"
+            ]
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 15.5,
+      "source": "evals/results/2026-10-07-dynamic-judge-calibration-v5/result.json"
+    },
+    {
+      "sample_id": "dynamic-valid-safe-default-business-bounds",
+      "case_id": "holdout-dynamic-order-by",
+      "case_sha256": "65c5cf431ad115489f44c7e12604ce946c03ff26fff7e12cd30f1ad9ee5ad90c",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "指出 `ORDER BY ${sort} ${direction}` 的两项“都会原样进入 SQL”，不受控文本可能改变 SQL 结构。",
+              "提供排序键到固定列名、方向到固定 ASC/DESC 的有限映射，并要求映射函数返回固定常量，不能继续拼入原始文本。",
+              "明确未知值应拒绝或使用事先约定的固定默认值。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "认可 `#{tenantId}` 是值绑定，要求 offset、size 保留 `#{...}`。",
+              "要求入口保证 `offset >= 0`，且 size 符合业务下限和上限。",
+              "明确 `#{sort}` 不能动态选择列名，`#{direction}` 不能代替 SQL 关键字。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "验证方案覆盖全部允许字段和方向组合，检查生成 SQL 仅包含固定映射片段且保留绑定参数。",
+              "覆盖未知值、空值、大小写策略及逗号、注释、表达式等异常输入，验证拒绝或固定默认行为。",
+              "要求测试负 offset、size 边界和超上限输入，并验证实际执行入口的校验。",
+              "说明仅凭片段不能断言已可利用，也不能认定调用方缺失校验；明确“本次仅做静态审查，未执行查询”。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 18.125,
+      "source": "evals/results/2026-10-07-dynamic-judge-calibration-v5/result.json"
+    },
+    {
+      "sample_id": "dynamic-valid-zero-page-contract",
+      "case_id": "holdout-dynamic-order-by",
+      "case_sha256": "65c5cf431ad115489f44c7e12604ce946c03ff26fff7e12cd30f1ad9ee5ad90c",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确指出“${sort}/${direction} 是文本替换”，并要求“枚举白名单 id/total 和 ASC/DESC 固定映射”。",
+              "未知输入按事先约定回退为固定的“id ASC”，且明确“不能原文拼接”。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "明确认可“#{tenantId}/#{offset}/#{size} 是值绑定”，并指出“不能用 #{} 表示排序列或方向”。",
+              "要求“offset>=0，size 范围 0..100”，设置页大小上下界，并明确约定“size=0 返回空结果”。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "提出“验证参数流转和固定映射”，覆盖白名单映射和参数流转验证。",
+              "测试方案覆盖“未知值、SQL 注释、方向注入”以及“负 offset、size=-1、0、100、101”的异常输入和分页边界。",
+              "明确“不夸大已绑定数值的注入风险”，并说明“数据库测试是待执行计划”，没有声称已执行数据库测试。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 14.89,
+      "source": "evals/results/2026-10-07-dynamic-judge-calibration-v5/result.json"
+    },
+    {
+      "sample_id": "dynamic-unsafe-unbounded-page",
+      "case_id": "holdout-dynamic-order-by",
+      "case_sha256": "65c5cf431ad115489f44c7e12604ce946c03ff26fff7e12cd30f1ad9ee5ad90c",
+      "expected": {
+        "criterion-2": false
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确提出“排序用固定白名单，字段 id/total 方向 ASC/DESC，不接受请求原文”，将排序字段和方向限制为受控 SQL 片段，排除了直接拼接请求原文。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": false,
+            "evidence": [
+              "认可“tenantId、offset、size 用值绑定”。",
+              "同时声称“负 offset 和任何大 size 都可以直接交给数据库，不应设上下界”。"
+            ],
+            "failures": [
+              "明确放任负偏移和无限页大小，未要求校验非负 offset 及 size 的合法下界和上界，违反分页边界要求。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": false,
+            "evidence": [
+              "验证方案仅为“验证所有排序合法组合”。",
+              "未提出未知排序字段、异常方向或分页边界的验证方案。"
+            ],
+            "failures": [
+              "仅覆盖合法排序组合，未覆盖白名单对异常输入的处理及分页边界，验证方案不完整。"
+            ]
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 16.578,
+      "source": "evals/results/2026-10-07-dynamic-judge-calibration-v5/result.json"
+    },
+    {
+      "sample_id": "batch-valid-sequential-design",
+      "case_id": "holdout-batch-import",
+      "case_sha256": "5c8c21a0c85d0709ddf76b80ef0bf1aa1caf9c2be421ee232577da72a7a3b480",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确取消百万行与 HTTP 共用的长事务，并将 HTTP 放在本地事务外。",
+              "采用流式读取、分块调度和每行短事务；坏行不回滚其他成功行，明确了部分成功语义。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "为 import_job/import_row 设计了 PENDING、PROCESSING、RETRYABLE、SUCCESS、FAILED 状态及错误原因记录。",
+              "业务唯一键和数据库唯一约束防止重复导入重写成功行，处理中租约过期可恢复。",
+              "支持逐行分页查询结果并汇总部分成功，而非只返回总行数。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "明确远程超时表示未取得有效结果，不能写入产品，并与明确业务拒绝区分。",
+              "未凭 validate 名称断言只读；提出只读时有限重试，若有副作用则要求下游幂等或查询契约。",
+              "提出有限重试、指数退避和抖动，耗尽后保留失败原因供人工重试，形成可追踪终态。",
+              "采用顺序处理，因此无需新增线程池；同时设计了处理中租约过期恢复。",
+              "列出断点恢复、重复导入、单行事务原子回滚、远程超时未写入及最终状态汇总等测试场景，未声称这些测试已执行。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 31.906,
+      "source": "evals/results/2026-10-07-batch-judge-calibration-v6/result.json"
+    },
+    {
+      "sample_id": "batch-unsafe-retry-and-state",
+      "case_id": "holdout-batch-import",
+      "case_sha256": "5c8c21a0c85d0709ddf76b80ef0bf1aa1caf9c2be421ee232577da72a7a3b480",
+      "expected": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "actual": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": false,
+            "evidence": [
+              "明确主张“保留百万行大事务”，并将 HTTP 调用放在其中，声称远程操作可自动回滚。",
+              "未提出事务外远程校验、分块本地事务或 staging/状态表方案，也未说明部分失败语义。"
+            ],
+            "failures": [
+              "把百万行处理与远程 HTTP 放入一个长数据库事务，违背事务边界要求。",
+              "缺少部分失败、分块提交或隔离远程调用的设计。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": false,
+            "evidence": [
+              "声称“每次失败重新写所有行，不需要唯一键”，没有按行或业务唯一键设计幂等。",
+              "仅说“返回总行数即可”，没有记录失败原因、处理中恢复状态或可查询导入结果。"
+            ],
+            "failures": [
+              "重试会重复写成功行，且没有幂等键或状态迁移。",
+              "缺少失败原因、处理中恢复和逐行/批次结果查询能力。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": false,
+            "evidence": [
+              "明确声称“超时代表校验成功，直接写产品”，将未获得有效校验结果当作成功。",
+              "提出“无限重试无需退避或记录状态”，缺少有限重试、退避、耗尽后的可追踪终态及补偿/对账/人工处理。",
+              "只说“测试正常文件”，未覆盖断点恢复、重复导入、事务原子性或块回滚、远程超时和最终状态等关键场景。"
+            ],
+            "failures": [
+              "错误处理超时语义，且未区分业务拒绝与未知/待重试状态。",
+              "没有远程副作用时的幂等/查询协议条件设计，也没有有限重试和退避策略。",
+              "没有失败耗尽后的终态、补偿、对账或人工处理方案。",
+              "测试范围仅正常文件，缺少要求的异常与恢复场景验证。"
+            ]
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 24.875,
+      "source": "evals/results/2026-10-07-batch-judge-calibration-v6/result.json"
+    },
+    {
+      "sample_id": "batch-valid-conditional-with_skill",
+      "case_id": "holdout-batch-import",
+      "case_sha256": "5c8c21a0c85d0709ddf76b80ef0bf1aa1caf9c2be421ee232577da72a7a3b480",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确拒绝整批本地事务，指出百万行和远程 HTTP 会长期占用连接与锁。",
+              "明确采用事务外远程校验、流式分块处理和逐行短事务提交，并说明部分成功、失败隔离及失败状态语义。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "为导入任务和导入行设计了唯一键、逐行状态迁移、领取版本、租约、尝试次数及失败原因。",
+              "通过业务来源行键或独立幂等记录与唯一约束，保证重试不会重复写入成功行。",
+              "提供 jobId 查询接口、分页逐行结果、业务记录 ID 和失败原因，而非只返回总行数。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "明确规定超时表示未获得校验结论，不能视为通过，并与业务明确不通过区分；允许 RETRY_WAIT、未知及人工重试。",
+              "说明只读校验可有限重试，若有远端副作用则必须补充幂等键、结果查询和恢复协议。",
+              "给出有限次数、指数退避和抖动，耗尽后进入可见 FAILED 并保留原因和人工入口。",
+              "给出并发队列和下游调用上限、租约到期恢复及领取版本防旧线程覆盖。",
+              "列出覆盖超时恢复、重试耗尽、重复导入、事务原子性、并发竞争、租约过期和断点恢复等场景，并明确未执行构建或测试。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 26.968,
+      "source": "evals/results/2026-10-07-batch-judge-calibration-v6/result.json"
+    },
+    {
+      "sample_id": "batch-valid-conditional-without_skill",
+      "case_id": "holdout-batch-import",
+      "case_sha256": "5c8c21a0c85d0709ddf76b80ef0bf1aa1caf9c2be421ee232577da72a7a3b480",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确指出不保留整批本地事务，采用事务外远程校验、短事务写入，并建议先分块持久化待导入数据。",
+              "说明产品写入与逐行成功状态在同一短事务中提交，并定义坏行导致块回滚后拆分处理及部分成功语义。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "为导入任务和导入行设计了幂等键、唯一约束、状态迁移、尝试次数、错误原因、目标记录 ID 等字段。",
+              "明确 SUCCESS 行重试时跳过，PROCESSING 通过租约恢复，且成功、失败和重试状态可逐行查询。",
+              "要求同一文件请求幂等键复用任务、产品写入使用 importRowId 或 jobId/rowNo 唯一键，并核对重复提交结果。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "明确超时表示没有确定结论，不能当作非法或直接放行写库，并与明确非法结果区分。",
+              "提出有限重试、指数退避、随机抖动和 Retry-After；耗尽后进入可追踪的“校验暂不可用，重试耗尽”状态并允许显式重试。",
+              "明确只读接口是假设；若接口有副作用，则需要远程幂等键或结果查询机制，没有宣称未展示的契约已存在。",
+              "设置有限并发，PROCESSING 带租约到期时间和领取版本，支持崩溃恢复并防止旧执行者覆盖新结果。",
+              "列出远程超时恢复、断点接收、重复导入、事务回滚、提交响应丢失、并发抢行和最终状态等测试场景，表述为必须验证而未声称已经执行。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 28.812,
+      "source": "evals/results/2026-10-07-batch-judge-calibration-v6/result.json"
+    },
+    {
+      "sample_id": "batch-unsafe-side-effect-contract",
+      "case_id": "holdout-batch-import",
+      "case_sha256": "5c8c21a0c85d0709ddf76b80ef0bf1aa1caf9c2be421ee232577da72a7a3b480",
+      "expected": {
+        "criterion-3": false
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确提出分块写库、远程调用在事务外，并使用状态记录；同时说明失败行可查询，体现了分块和部分失败可见性。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": false,
+            "evidence": [
+              "提到用业务唯一键和状态记录去重，也提到失败行可查。"
+            ],
+            "failures": [
+              "未设计明确的逐行状态迁移或处理中恢复机制。",
+              "未要求记录具体失败原因。",
+              "未完整说明重试如何避免已成功行被重复写入。"
+            ]
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": false,
+            "evidence": [
+              "提到远程校验和超时，但其处理方式与要求相反。"
+            ],
+            "failures": [
+              "错误地把超时视为通过并直接写库，未与业务拒绝区分，也未允许保持未知或待重试。",
+              "在代码未展示契约的情况下宣称 validate 已支持服务端幂等且只读。",
+              "提出无限自动重试，缺少有限重试、退避及耗尽后的可追踪终态、补偿、对账或人工处理。",
+              "未说明远程副作用场景下的查询或确认协议。",
+              "测试只覆盖成功文件，未覆盖断点恢复、重复导入、事务原子性或块回滚、远程超时及最终状态。"
+            ]
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 30.594,
+      "source": "evals/results/2026-10-07-batch-judge-calibration-v6/result.json"
+    },
+    {
+      "sample_id": "batch-real-lease-only-with_skill",
+      "case_id": "holdout-batch-import",
+      "case_sha256": "5c8c21a0c85d0709ddf76b80ef0bf1aa1caf9c2be421ee232577da72a7a3b480",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确指出百万行加 HTTP 不应使用覆盖整批的长事务，并要求远程 HTTP 调用在事务外执行。",
+              "提出按固定块写入和处理、每块独立本地事务，并要求产品写入与行状态更新原子提交。",
+              "明确规定块内部分行失败时提交其他成功行，不因单行失败回滚整个任务。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "设计了 import_job/import_row、业务幂等键、唯一约束以及 PENDING、PROCESSING、SUCCESS、FAILED_RETRYABLE、FAILED_FINAL 等状态迁移。",
+              "明确要求复用原行记录和幂等键，SUCCESS 行重试时跳过，并通过产品业务唯一键或幂等写入防止重复。",
+              "记录尝试次数、租约、错误码和错误信息，支持处理中租约恢复；同时提供分页查询行结果和可重算统计，而非只返回总行数。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": true,
+            "evidence": [
+              "明确规定校验超时记录为可重试错误，不能当作成功写入产品，并将其与明确不可重试的 4xx 区分。",
+              "提出有限次数、指数退避和抖动；耗尽后进入 FAILED_FINAL，保留错误码、最后错误和尝试次数，支持对账、恢复和人工处理所需的追踪信息。",
+              "对远程校验使用了有条件的只读查询表述，并要求产品写入依靠业务唯一键、幂等键或条件更新防重复，没有把未展示的远程副作用契约宣称为已存在。",
+              "引入 worker 时具体设计了 5～15 分钟租约、过期恢复、条件更新/版本号/行锁领取，满足租约恢复要求。",
+              "列出了断点恢复、重复导入、块内部分失败、数据库原子回滚、HTTP 超时与最大重试、最终状态一致性等测试场景，并以必须覆盖场景表述而未声称已执行。"
+            ],
+            "failures": []
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 41.094,
+      "source": "evals/results/2026-10-07-batch-judge-calibration-v6/result.json"
+    },
+    {
+      "sample_id": "batch-real-lease-only-without_skill",
+      "case_id": "holdout-batch-import",
+      "case_sha256": "5c8c21a0c85d0709ddf76b80ef0bf1aa1caf9c2be421ee232577da72a7a3b480",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": false
+      },
+      "actual": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": false
+      },
+      "grading": {
+        "results": [
+          {
+            "criterion_id": "criterion-1",
+            "passed": true,
+            "evidence": [
+              "明确指出百万行不应使用整批长事务，说明了锁、事务日志、连接占用及将 HTTP 纳入事务的风险。",
+              "提出事务外远程校验、固定大小分块短事务，以及 import_batch/import_row 或状态表方案。",
+              "说明块级提交、失败状态和批次终态，覆盖部分失败语义。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-2",
+            "passed": true,
+            "evidence": [
+              "为每行设计业务幂等键、唯一约束和 PENDING/PROCESSING/SUCCESS/FAILED 状态迁移。",
+              "说明本地业务写入与行状态更新必须在同一事务中完成，并用唯一约束和幂等 upsert 防止重试重复成功写入。",
+              "记录错误码、错误信息、重试次数和更新时间，支持处理中租约恢复、失败重调度及按批次/行号/状态/错误码查询结果，而非只返回总行数。"
+            ],
+            "failures": []
+          },
+          {
+            "criterion_id": "criterion-3",
+            "passed": false,
+            "evidence": [
+              "明确把超时、连接失败和 5xx 标记为可重试状态，区分不可重试业务失败，并设置有限重试、指数退避、随机抖动、熔断和达到上限后的 FAILED_FINAL。",
+              "提供 PROCESSING 租约恢复、并发限制，以及覆盖超时、最终状态、断点恢复、重复导入和事务回滚等测试场景。",
+              "对远程调用仅在“支持幂等查询”时提出请求幂等键；同时又规定“不支持”时可接受重复调用并只保证本地写入幂等，未对远程校验存在副作用的情况要求幂等协议、查询协议或事前确认，因此无法保证副作用不会被重复触发。"
+            ],
+            "failures": [
+              "远程校验若具有副作用，接受重复调用而不要求远端幂等/查询协议，未满足该场景下的安全契约要求。"
+            ]
+          }
+        ]
+      },
+      "matched": true,
+      "infrastructure_error": null,
+      "duration_seconds": 35.563,
+      "source": "evals/results/2026-10-07-batch-judge-calibration-v6/result.json"
+    }
+  ]
+}

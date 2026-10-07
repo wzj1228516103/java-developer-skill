@@ -1,0 +1,23 @@
+# 稳定的用例标识。
+id: order-endpoint
+title: 生成带校验、事务和幂等边界的订单接口
+description: |
+  验证 Skill 能在自包含的 Spring Boot 开发任务中选择相关规则，交付清晰的 DTO、Controller、Service 和测试骨架，且不扫描无关工作区。
+tag: functional_test
+input:
+  prompt: |
+    这是文本交付任务：请在最终回复中给出所需代码、设计或审查结论。仅查看题目提供的上下文和适用的 Skill 文件，无需创建工程、写入工作区文件或执行构建；评分对象是最终回复。
+    请按 Java 17 和 Spring Boot 3 写一个“创建订单”接口的可运行代码骨架。请求包含商品明细和幂等键，接口需要参数校验、从认证上下文取得当前用户、Service 层事务边界、避免重复提交，并返回统一响应。请给出请求 DTO、Controller、Service 关键代码和需要覆盖的测试场景；不要引入题目没有要求的框架或微服务。
+
+constraints:
+  timeout_seconds: 420
+  max_turns: 8
+
+expect:
+  exit_code: 0
+
+judge:
+  # 接受声明式及编程式事务；此项仅验证骨架结构。
+  type: script
+  script_path: evals/fixtures/check-order-endpoint.ps1
+  timeout_seconds: 180

@@ -1,0 +1,61 @@
+# 稳定的用例标识。
+id: contract-boundary
+title: 不把缺失的权限 API 当作既有契约
+description: |
+  回归检查项目契约优先原则：当给定 Service 没有权限入口时，Skill 应明确缺少契约或待确认，而不是把假想方法当成现有实现。
+tag: functional_test
+input:
+  prompt: |
+    这是文本交付任务：请在最终回复中给出所需代码、设计或审查结论。仅查看题目提供的上下文和适用的 Skill 文件，无需创建工程、写入工作区文件或执行构建；评分对象是最终回复。
+    只根据下面给出的 OrderService 设计测试建议。请说明如何验证“操作者无权访问订单”；如果给定代码没有对应的访问、查询或取消方法，必须明确标记为缺少契约或假设，不能把假想方法当成现有 API。不要扫描工作区，也不要补充无关架构。
+    题目仅提供这个公开方法：
+
+    ```java
+    @Transactional
+    public Order create(Long operatorId, CreateOrderCommand command) {
+        if (idempotencyRepository.exists(operatorId, command.idempotencyKey())) {
+            return orderRepository.findByIdempotencyKey(operatorId, command.idempotencyKey());
+        }
+        if (!inventoryClient.reserve(command.items())) {
+            throw new StockInsufficientException();
+        }
+        Order order = orderRepository.save(Order.pending(operatorId, command));
+        idempotencyRepository.markUsed(operatorId, command.idempotencyKey());
+        return order;
+    }
+    ```
+
+context:
+  files:
+    src/main/java/com/example/order/OrderService.java: |
+      @Service
+      public class OrderService {
+          private final IdempotencyRepository idempotencyRepository;
+          private final InventoryClient inventoryClient;
+          private final OrderRepository orderRepository;
+
+          @Transactional
+          public Order create(Long operatorId, CreateOrderCommand command) {
+              if (idempotencyRepository.exists(operatorId, command.idempotencyKey())) {
+                  return orderRepository.findByIdempotencyKey(operatorId, command.idempotencyKey());
+              }
+              if (!inventoryClient.reserve(command.items())) {
+                  throw new StockInsufficientException();
+              }
+              Order order = orderRepository.save(Order.pending(operatorId, command));
+              idempotencyRepository.markUsed(operatorId, command.idempotencyKey());
+              return order;
+          }
+      }
+
+expect:
+  exit_code: 0
+
+judge:
+  # 单纯出现“契约”二字不能证明没有虚构 API。
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - 明确当前只有 create 方法，未提供订单访问或查询的授权契约，不能据此写可执行的无权访问测试或断定其他层没有授权
+    - 不把 getOrder、cancel、canAccess 等新增方法当成已有 API；如果展示未来测试或占位代码，必须隔离标注为假设，并说明需要先确认的方法与拒绝语义

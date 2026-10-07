@@ -1,0 +1,40 @@
+# 稳定的用例标识。
+id: holdout-transaction-self-invocation
+title: 识别 Spring 事务自调用边界
+description: |
+  未参与主套件调优的事务 Review 任务，验证是否能从调用方式判断代理事务是否生效。
+tag: holdout
+input:
+  prompt: |
+    这是文本 Review 任务，请根据给出的 Java 代码指出有证据的问题、风险、建议和验证边界，不创建文件、不执行构建，也不要编造未展示的配置。
+    ```java
+    @Service
+    public class SettlementService {
+        private final SettlementRepository repository;
+        private final NotificationClient notificationClient;
+
+        @Transactional
+        public void settle(Long settlementId) {
+            repository.markPaid(settlementId);
+            repository.appendLedger(settlementId);
+        }
+
+        public void settleAndNotify(Long settlementId) {
+            this.settle(settlementId);
+            notificationClient.sendPaid(settlementId);
+        }
+    }
+    ```
+    请重点判断 `this.settle(...)` 是否能触发 Spring 默认代理事务；说明通知调用和本地事务的边界，并给出最小可验证的修复方向。若项目使用 AspectJ 等未展示模式，只能列为待确认例外。
+
+expect:
+  exit_code: 0
+
+judge:
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - '识别 `this.settle(...)` 是同一对象自调用，在默认 Spring 代理模式下绕过事务代理；引用代码证据，不把 `@Transactional` 注解存在本身当成事务已生效'
+    - '说明本地两步写入应由外部代理事务覆盖，并把通知发送视为事务外的不可控外部调用；可提出独立 Bean、由代理调用或 Outbox/提交后投递等方向，不虚构项目已有 API'
+    - '将 AspectJ 或其他未展示模式列为待确认例外，不编造事务配置。给出成功提交、第二步失败后两步原子性以及通知失败的验证方案；回滚验证明确使用未捕获运行时异常，或说明按实际异常类型/回滚规则验证，不能宣称任意异常都会回滚。接受等价表述，不要求逐项列举事务管理器或数据源名称；不能声称代码已被运行验证'

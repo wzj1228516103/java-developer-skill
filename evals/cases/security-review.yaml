@@ -1,0 +1,44 @@
+# 稳定的用例标识。
+id: security-review
+title: 识别越权、SQL 注入和敏感日志问题
+description: |
+  验证 Review 入口是否按证据报告安全问题，区分严重性，并给出可执行的修复建议，而不是把所有偏好都判为缺陷。
+tag: functional_test
+input:
+  prompt: |
+    这是文本交付任务：请在最终回复中给出所需代码、设计或审查结论。仅查看题目提供的上下文和适用的 Skill 文件，无需创建工程、写入工作区文件或执行构建；评分对象是最终回复。
+    请 Review 提供的 OrderController.java 和 OrderMapper.java，重点检查权限、SQL 注入和敏感信息日志。工作区只有这两个代码片段，没有 Git 变更或完整项目。按“[严重性]、位置与证据、问题、风险、建议”报告真实问题；对没有证据的风险标为待确认，不要只输出泛化清单。
+
+context:
+  files:
+    src/main/java/com/example/order/OrderController.java: |
+      @RestController
+      @RequestMapping("/orders")
+      public class OrderController {
+          @PostMapping("/{id}/cancel")
+          public void cancel(@PathVariable Long id,
+                             @RequestParam Long userId,
+                             @RequestHeader("Authorization") String token) {
+              log.info("cancel order={}, userId={}, token={}", id, userId, token);
+              orderService.cancel(id, userId);
+          }
+      }
+    src/main/java/com/example/order/OrderMapper.java: |
+      @Mapper
+      public interface OrderMapper {
+          @Select("select * from orders where id = " + "${id}")
+          Order findById(@Param("id") Long id);
+      }
+
+expect:
+  exit_code: 0
+
+judge:
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - 能从 OrderController 的 userId 参数和调用链识别可能的资源越权，并引用具体证据
+    - '能识别 OrderMapper 中 ${id} 文本替换并建议使用 #{id} 值绑定；考虑 id 是 Long，不直接把当前可利用的 SQL 注入当成已证实事实'
+    - 能识别 Authorization token 被写入日志的敏感信息泄露风险，并给出脱敏或不记录方案
+    - 使用严重性、位置与证据、问题、风险、建议结构；没有编造不存在的认证或数据库事实

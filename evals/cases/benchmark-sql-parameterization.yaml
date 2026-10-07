@@ -1,0 +1,19 @@
+# 稳定的用例标识。
+id: benchmark-sql-parameterization
+title: SQL 查询应使用参数绑定
+description: |
+  基准用例：验证 MyBatis 查询不会拼接用户输入，并能安全处理 keyword 模糊查询。
+tag: benchmark
+input:
+  prompt: |
+    这是文本交付任务：请在最终回复中给出所需代码、设计或审查结论。仅查看题目提供的上下文和适用的 Skill 文件，无需创建工程、写入工作区文件或执行构建；评分对象是最终回复。
+    写一个 MyBatis Mapper，根据用户输入的 keyword 分页查询订单。请给出安全的 SQL 和参数定义，支持模糊匹配；不要把 keyword 拼接进 SQL 文本。
+
+expect:
+  must_contain:
+    - "keyword"
+
+judge:
+  type: script
+  script_path: evals/fixtures/check-sql-parameterization.ps1
+  timeout_seconds: 180

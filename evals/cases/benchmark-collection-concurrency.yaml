@@ -1,0 +1,19 @@
+# 稳定的用例标识。
+id: benchmark-collection-concurrency
+title: 并发缓存应使用并发集合和原子初始化
+description: |
+  基准用例：验证多线程访问的本地缓存不会使用非线程安全 HashMap，也不会用先查后写造成重复初始化。
+tag: benchmark
+input:
+  prompt: |
+    这是文本交付任务：请在最终回复中给出所需代码、设计或审查结论。仅查看题目提供的上下文和适用的 Skill 文件，无需创建工程、写入工作区文件或执行构建；评分对象是最终回复。
+    实现一个 Java 17 的 UserCacheService，多个线程会同时按 userId 获取用户，缓存未命中时从 Repository 加载。请给出缓存字段和 get 方法，要求说明并发安全与重复加载处理。
+
+expect:
+  must_contain:
+    - "UserCacheService"
+
+judge:
+  type: script
+  script_path: evals/fixtures/check-collection-concurrency.ps1
+  timeout_seconds: 180

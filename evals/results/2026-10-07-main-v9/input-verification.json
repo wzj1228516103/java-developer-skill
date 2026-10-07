@@ -1,0 +1,395 @@
+{
+  "schema_version": "input-verification-v1",
+  "checked_at_utc": "2026-10-07T03:01:27.9648291Z",
+  "evaluation_revision": "eval-v9",
+  "manifest_sha256": "2868ca606fcd49d463a88f9c2aaec1304875c772ab6802a491e9beed5307c46f",
+  "total": 64,
+  "matched": 64,
+  "all_match": true,
+  "files": [
+    {
+      "path": "agents/openai.yaml",
+      "expected_sha256": "517b87c8480a8017fec1ac4d96d1eefbef8998a357426e9d1ea9f10f7bbfcc75",
+      "actual_sha256": "517b87c8480a8017fec1ac4d96d1eefbef8998a357426e9d1ea9f10f7bbfcc75",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/benchmark-collection-concurrency.yaml",
+      "expected_sha256": "338b50485a469171ecd4aeaa3655446a73760b8722a397856cb5897da01c5f77",
+      "actual_sha256": "338b50485a469171ecd4aeaa3655446a73760b8722a397856cb5897da01c5f77",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/benchmark-date-time-api.yaml",
+      "expected_sha256": "e8ae71b98f68ced5aa185f4ad90aa058a39ab76294ee41aed53a286b9f7219ae",
+      "actual_sha256": "e8ae71b98f68ced5aa185f4ad90aa058a39ab76294ee41aed53a286b9f7219ae",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/benchmark-layering-contract.yaml",
+      "expected_sha256": "3059a538c426ee1e0b19a8c569b61a37fdeb7ef51ca42a6baf8683d77b4511a0",
+      "actual_sha256": "3059a538c426ee1e0b19a8c569b61a37fdeb7ef51ca42a6baf8683d77b4511a0",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/benchmark-money-calculation.yaml",
+      "expected_sha256": "62bed5f3af9239c6a3f4fad5e97a5011bf77315ee0e30aa3b93c5d0f8983660d",
+      "actual_sha256": "62bed5f3af9239c6a3f4fad5e97a5011bf77315ee0e30aa3b93c5d0f8983660d",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/benchmark-null-safety.yaml",
+      "expected_sha256": "b94c197ddbc32b4a738dd628697c8e6b7810f395f812928b01d9b4203bddc66f",
+      "actual_sha256": "b94c197ddbc32b4a738dd628697c8e6b7810f395f812928b01d9b4203bddc66f",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/benchmark-sql-parameterization.yaml",
+      "expected_sha256": "85a0b852f622a5710e7d7a0e846ac41808e48b37a19c2bc210bdedc876540632",
+      "actual_sha256": "85a0b852f622a5710e7d7a0e846ac41808e48b37a19c2bc210bdedc876540632",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/contract-boundary.yaml",
+      "expected_sha256": "519b3c694859874f050c3055e5e32ef4c19c897fbae05b9c58199b7ae1719d1d",
+      "actual_sha256": "519b3c694859874f050c3055e5e32ef4c19c897fbae05b9c58199b7ae1719d1d",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/inventory-design.yaml",
+      "expected_sha256": "2d8ad11fb36715d8cdf4f1b52cb875013e144eca6bbb4175f0746e12c28c1d9d",
+      "actual_sha256": "2d8ad11fb36715d8cdf4f1b52cb875013e144eca6bbb4175f0746e12c28c1d9d",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/order-endpoint.yaml",
+      "expected_sha256": "4ef20894f98510dbfb4fac9b0c1abfecad849b84f0a5a7348d0253db377050fc",
+      "actual_sha256": "4ef20894f98510dbfb4fac9b0c1abfecad849b84f0a5a7348d0253db377050fc",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/regression-cache-java17.yaml",
+      "expected_sha256": "d4e91d65e6cc3ea7803758065fedf1f90d706d554e0320f34dc7f8ff2a0cf82b",
+      "actual_sha256": "d4e91d65e6cc3ea7803758065fedf1f90d706d554e0320f34dc7f8ff2a0cf82b",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/regression-inventory-parked-review.yaml",
+      "expected_sha256": "b5946b6a0f1fafee2e3865ae985d2b364b8200d025157a5137b7b70ac88526e4",
+      "actual_sha256": "b5946b6a0f1fafee2e3865ae985d2b364b8200d025157a5137b7b70ac88526e4",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/regression-package-visibility.yaml",
+      "expected_sha256": "809ce02976a0f8e6e531d64f7b75d8a414413bda86bf5a6ad806b298df952e32",
+      "actual_sha256": "809ce02976a0f8e6e531d64f7b75d8a414413bda86bf5a6ad806b298df952e32",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/regression-remote-reservation-recovery.yaml",
+      "expected_sha256": "899361cda6737ab9f98588393965cd3ae5531a4fe3eadb65e940ccb02f689ed6",
+      "actual_sha256": "899361cda6737ab9f98588393965cd3ae5531a4fe3eadb65e940ccb02f689ed6",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/security-review.yaml",
+      "expected_sha256": "ea076a27ef5587beef98ac4dff13772d29ac3f180abb88130d42db8491444963",
+      "actual_sha256": "ea076a27ef5587beef98ac4dff13772d29ac3f180abb88130d42db8491444963",
+      "matched": true
+    },
+    {
+      "path": "evals/cases/service-tests.yaml",
+      "expected_sha256": "8a45dbbf6da4132efe13d97f2e246c51df8790af06afbbd2b1d89ba819278c04",
+      "actual_sha256": "8a45dbbf6da4132efe13d97f2e246c51df8790af06afbbd2b1d89ba819278c04",
+      "matched": true
+    },
+    {
+      "path": "evals/eval.yaml",
+      "expected_sha256": "76e9cc7b322bed527d913e65f2204ab5adf8c998babea9c61baa33db449cfa2f",
+      "actual_sha256": "76e9cc7b322bed527d913e65f2204ab5adf8c998babea9c61baa33db449cfa2f",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/cache-java17/CacheContractHarness.java",
+      "expected_sha256": "38907637fedc89c96c1841b3e452201461e70c6bac6ca74a53636e0c917d02f0",
+      "actual_sha256": "38907637fedc89c96c1841b3e452201461e70c6bac6ca74a53636e0c917d02f0",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/check-cache-java17.ps1",
+      "expected_sha256": "71713789a9f06e44cde48bd34ab35b81f3c423e7165c94e5379c579e27c8b871",
+      "actual_sha256": "71713789a9f06e44cde48bd34ab35b81f3c423e7165c94e5379c579e27c8b871",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/check-collection-concurrency.ps1",
+      "expected_sha256": "8b1dd3d1926831893d6cea9c19308e5f9deca8b81402af0f179a6d341b171643",
+      "actual_sha256": "8b1dd3d1926831893d6cea9c19308e5f9deca8b81402af0f179a6d341b171643",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/check-contract-boundary.ps1",
+      "expected_sha256": "e175b6361a70475f6f95abbc7a0f35f4603c52279f72c191f66cf7a9f1f0f9bf",
+      "actual_sha256": "e175b6361a70475f6f95abbc7a0f35f4603c52279f72c191f66cf7a9f1f0f9bf",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/check-inventory-design.ps1",
+      "expected_sha256": "118a3a489cbcc1cfaa7d576e82f95d26c35d0c22d23d20181c7db389739069a0",
+      "actual_sha256": "118a3a489cbcc1cfaa7d576e82f95d26c35d0c22d23d20181c7db389739069a0",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/check-order-endpoint.ps1",
+      "expected_sha256": "9702365f3c98f825a3c86f8143de15900a9eea1fe37260cf6fcbba92de949122",
+      "actual_sha256": "9702365f3c98f825a3c86f8143de15900a9eea1fe37260cf6fcbba92de949122",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/check-package-visibility.ps1",
+      "expected_sha256": "7c8f135330827b70de7afefce3b9d46aec1feaae826faf888cfb416b9b935eaa",
+      "actual_sha256": "7c8f135330827b70de7afefce3b9d46aec1feaae826faf888cfb416b9b935eaa",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/check-service-tests.ps1",
+      "expected_sha256": "bc9108364282e25454eaba83786ba0175590c83f42e95be393064931e28fc3a6",
+      "actual_sha256": "bc9108364282e25454eaba83786ba0175590c83f42e95be393064931e28fc3a6",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/check-sql-parameterization.ps1",
+      "expected_sha256": "9cb94a7f87b6e2df1cf814a35af6ae0548e3838b63f0014a507bc71b05e77d0b",
+      "actual_sha256": "9cb94a7f87b6e2df1cf814a35af6ae0548e3838b63f0014a507bc71b05e77d0b",
+      "matched": true
+    },
+    {
+      "path": "evals/fixtures/package-visibility/VisibilityHarness.java",
+      "expected_sha256": "d0a7cf435f9658a5baf8af3129fad71d377ce84818743b59ce3a4669cbfd6db4",
+      "actual_sha256": "d0a7cf435f9658a5baf8af3129fad71d377ce84818743b59ce3a4669cbfd6db4",
+      "matched": true
+    },
+    {
+      "path": "evals/scripts/extract-metrics.ps1",
+      "expected_sha256": "cc1a9c547c9276944ba20fa8b4cbcd1c1f88085710e5624e945d5abb31417e03",
+      "actual_sha256": "cc1a9c547c9276944ba20fa8b4cbcd1c1f88085710e5624e945d5abb31417e03",
+      "matched": true
+    },
+    {
+      "path": "evals/scripts/run-eval.ps1",
+      "expected_sha256": "659a8debc778c5ef7babbc32dec1c607eb4156dd856bc9946ce5303187df1191",
+      "actual_sha256": "659a8debc778c5ef7babbc32dec1c607eb4156dd856bc9946ce5303187df1191",
+      "matched": true
+    },
+    {
+      "path": "evals/tests/config.Tests.py",
+      "expected_sha256": "22bbd5f1cbbd4938ba88e31eb37372d5d6222b36a30d463ad4ef53e53b57920a",
+      "actual_sha256": "22bbd5f1cbbd4938ba88e31eb37372d5d6222b36a30d463ad4ef53e53b57920a",
+      "matched": true
+    },
+    {
+      "path": "evals/tests/java-judges.Tests.ps1",
+      "expected_sha256": "fde9d4805151049a0ed5d04ad8a5b13df0fd94157fef5c531e80b28f6ab75ff5",
+      "actual_sha256": "fde9d4805151049a0ed5d04ad8a5b13df0fd94157fef5c531e80b28f6ab75ff5",
+      "matched": true
+    },
+    {
+      "path": "evals/tests/judges.Tests.ps1",
+      "expected_sha256": "ffd9913cca4039f464c006befb4e526de824a20504385f7489b824f47cf45602",
+      "actual_sha256": "ffd9913cca4039f464c006befb4e526de824a20504385f7489b824f47cf45602",
+      "matched": true
+    },
+    {
+      "path": "evals/tests/metrics.Tests.ps1",
+      "expected_sha256": "95789a2a87a94e5c0a1ffd51de983bf48bfdfb54401fb0d60a420677fae9e9a7",
+      "actual_sha256": "95789a2a87a94e5c0a1ffd51de983bf48bfdfb54401fb0d60a420677fae9e9a7",
+      "matched": true
+    },
+    {
+      "path": "memory.md",
+      "expected_sha256": "eb695b43b9762df152c8b1e1dc5aba671c1bbad21456bad04da12bc7fbfaef66",
+      "actual_sha256": "eb695b43b9762df152c8b1e1dc5aba671c1bbad21456bad04da12bc7fbfaef66",
+      "matched": true
+    },
+    {
+      "path": "project/_template.md",
+      "expected_sha256": "914750e799f83d40be9f126bea86e58c827fdc43273d41218bf7ac61ea9ff00c",
+      "actual_sha256": "914750e799f83d40be9f126bea86e58c827fdc43273d41218bf7ac61ea9ff00c",
+      "matched": true
+    },
+    {
+      "path": "project/README.md",
+      "expected_sha256": "58e45b6175646d0d0d60ddf155d73b5cf8521cd74dc7c26c907d4a5f29bb9abf",
+      "actual_sha256": "58e45b6175646d0d0d60ddf155d73b5cf8521cd74dc7c26c907d4a5f29bb9abf",
+      "matched": true
+    },
+    {
+      "path": "references/architecture.md",
+      "expected_sha256": "a13a488bb519ce5034fd3ea0db38e119f056cb1113f996fb8cea455bcf1b5624",
+      "actual_sha256": "a13a488bb519ce5034fd3ea0db38e119f056cb1113f996fb8cea455bcf1b5624",
+      "matched": true
+    },
+    {
+      "path": "references/concurrency-reliability.md",
+      "expected_sha256": "68d607db773ecc8d812addbee16242020b9254e4fcdefacf7da0d615288a980c",
+      "actual_sha256": "68d607db773ecc8d812addbee16242020b9254e4fcdefacf7da0d615288a980c",
+      "matched": true
+    },
+    {
+      "path": "references/contracts/error-code.md",
+      "expected_sha256": "7e85c404cf4bba400054fa41e89f521955d7d7afedd5ba177b62592a777c0512",
+      "actual_sha256": "7e85c404cf4bba400054fa41e89f521955d7d7afedd5ba177b62592a777c0512",
+      "matched": true
+    },
+    {
+      "path": "references/contracts/exception.md",
+      "expected_sha256": "b10ec26e59ef8843ebbb9da318e3c9fdaea830de4f02875961ec47d444441934",
+      "actual_sha256": "b10ec26e59ef8843ebbb9da318e3c9fdaea830de4f02875961ec47d444441934",
+      "matched": true
+    },
+    {
+      "path": "references/contracts/logging.md",
+      "expected_sha256": "a69506a53bad0ba164ccabd1ef8196f9d6b6e536c27a4cb345bd2f0b498fb0ba",
+      "actual_sha256": "a69506a53bad0ba164ccabd1ef8196f9d6b6e536c27a4cb345bd2f0b498fb0ba",
+      "matched": true
+    },
+    {
+      "path": "references/contracts/pagination.md",
+      "expected_sha256": "a2247d7c060d4478b56f594f298578adc4d553ed294321e47c7cbc4bd5b76eeb",
+      "actual_sha256": "a2247d7c060d4478b56f594f298578adc4d553ed294321e47c7cbc4bd5b76eeb",
+      "matched": true
+    },
+    {
+      "path": "references/contracts/response.md",
+      "expected_sha256": "770f18cf5e599e04d511ac48eb5a634cbb9c6185f3123fa92ed8198ea78762c9",
+      "actual_sha256": "770f18cf5e599e04d511ac48eb5a634cbb9c6185f3123fa92ed8198ea78762c9",
+      "matched": true
+    },
+    {
+      "path": "references/database-sql.md",
+      "expected_sha256": "2a6370d3c880751c864755bd3cb1af576d8ab95895246a58942ef2e8806328de",
+      "actual_sha256": "2a6370d3c880751c864755bd3cb1af576d8ab95895246a58942ef2e8806328de",
+      "matched": true
+    },
+    {
+      "path": "references/exception-validation.md",
+      "expected_sha256": "71812d29335c7d6227e365ba472e2595d74f60a11263c8bc5d1972bc6f2d11f2",
+      "actual_sha256": "71812d29335c7d6227e365ba472e2595d74f60a11263c8bc5d1972bc6f2d11f2",
+      "matched": true
+    },
+    {
+      "path": "references/java-core.md",
+      "expected_sha256": "c0661068da4def7f72a6047ffe7ea412f89a71ef0a915d45bbb9f1d6f190ddf9",
+      "actual_sha256": "c0661068da4def7f72a6047ffe7ea412f89a71ef0a915d45bbb9f1d6f190ddf9",
+      "matched": true
+    },
+    {
+      "path": "references/message-queue.md",
+      "expected_sha256": "d34860d42aaf0fe009929a27cf754d853b6b0f91f3860f30e908b86715fbe9fa",
+      "actual_sha256": "d34860d42aaf0fe009929a27cf754d853b6b0f91f3860f30e908b86715fbe9fa",
+      "matched": true
+    },
+    {
+      "path": "references/redis-cache.md",
+      "expected_sha256": "51d29f035fd4263df083eceef9788b45aab6f089bcc62a1b96bea22ce3822dfa",
+      "actual_sha256": "51d29f035fd4263df083eceef9788b45aab6f089bcc62a1b96bea22ce3822dfa",
+      "matched": true
+    },
+    {
+      "path": "references/security.md",
+      "expected_sha256": "25214e20e78d3f25bf7054c980359dab0cdefdfe4d5ce2baf92609ab3b02c8d2",
+      "actual_sha256": "25214e20e78d3f25bf7054c980359dab0cdefdfe4d5ce2baf92609ab3b02c8d2",
+      "matched": true
+    },
+    {
+      "path": "references/spring-web.md",
+      "expected_sha256": "59427e7741e6d67a2993a2665212a2031b2c91ad9391f4da0c6b4990616c951b",
+      "actual_sha256": "59427e7741e6d67a2993a2665212a2031b2c91ad9391f4da0c6b4990616c951b",
+      "matched": true
+    },
+    {
+      "path": "references/testing.md",
+      "expected_sha256": "10eb004c6d4d9a9032943172d8ae6c8a14f6dc822f6dcdcbe5c9c204c2ea4dbe",
+      "actual_sha256": "10eb004c6d4d9a9032943172d8ae6c8a14f6dc822f6dcdcbe5c9c204c2ea4dbe",
+      "matched": true
+    },
+    {
+      "path": "references/transaction-consistency.md",
+      "expected_sha256": "2cb4da88cfaf07ce6d5ce25af72cc216ab323272f5dec184c51398d5b51da058",
+      "actual_sha256": "2cb4da88cfaf07ce6d5ce25af72cc216ab323272f5dec184c51398d5b51da058",
+      "matched": true
+    },
+    {
+      "path": "SKILL.md",
+      "expected_sha256": "a8699cd80684953574a8293e3af2157462a03201a928b43665a9c1c9571f478d",
+      "actual_sha256": "a8699cd80684953574a8293e3af2157462a03201a928b43665a9c1c9571f478d",
+      "matched": true
+    },
+    {
+      "path": "skills.registry.json",
+      "expected_sha256": "6330674091002c31c437655cca1594fce6d02d5ff6d019ad3f8d262b7a93548d",
+      "actual_sha256": "6330674091002c31c437655cca1594fce6d02d5ff6d019ad3f8d262b7a93548d",
+      "matched": true
+    },
+    {
+      "path": "skills/java-design/SKILL.md",
+      "expected_sha256": "758374cc0e69ea050ae695b6701f307c08dbea7f96e969883baf4bee1fe455b2",
+      "actual_sha256": "758374cc0e69ea050ae695b6701f307c08dbea7f96e969883baf4bee1fe455b2",
+      "matched": true
+    },
+    {
+      "path": "skills/java-dev/SKILL.md",
+      "expected_sha256": "6e94e64e3a6319d00d09637eaf1ffbdd9d0292f65d0d69a0a8be9aec05f084c3",
+      "actual_sha256": "6e94e64e3a6319d00d09637eaf1ffbdd9d0292f65d0d69a0a8be9aec05f084c3",
+      "matched": true
+    },
+    {
+      "path": "skills/java-fix/SKILL.md",
+      "expected_sha256": "407c2c8a9575e5d942e658bb98a703dcfa7fd02763e7f635fd3330aa99a2dcab",
+      "actual_sha256": "407c2c8a9575e5d942e658bb98a703dcfa7fd02763e7f635fd3330aa99a2dcab",
+      "matched": true
+    },
+    {
+      "path": "skills/java-refactor/SKILL.md",
+      "expected_sha256": "cdd9ac9f02b2d3a94ec8cb4a01a493db344c7b5127bbedb7697d188fba50c714",
+      "actual_sha256": "cdd9ac9f02b2d3a94ec8cb4a01a493db344c7b5127bbedb7697d188fba50c714",
+      "matched": true
+    },
+    {
+      "path": "skills/java-review/SKILL.md",
+      "expected_sha256": "b9d1e11f0ecca91e478b45ea04a454ec6d77861631651a89c830c5f4b04b1026",
+      "actual_sha256": "b9d1e11f0ecca91e478b45ea04a454ec6d77861631651a89c830c5f4b04b1026",
+      "matched": true
+    },
+    {
+      "path": "skills/java-rules/SKILL.md",
+      "expected_sha256": "4ae56e6e543d1eedf39e269781498877a099d6036426ec70b50c813ca800caaf",
+      "actual_sha256": "4ae56e6e543d1eedf39e269781498877a099d6036426ec70b50c813ca800caaf",
+      "matched": true
+    },
+    {
+      "path": "skills/java-test/SKILL.md",
+      "expected_sha256": "8c3850518daf9d2a7ac899c738c003c1c1dfb4b8fee9b58e1de524db1e5d2bcd",
+      "actual_sha256": "8c3850518daf9d2a7ac899c738c003c1c1dfb4b8fee9b58e1de524db1e5d2bcd",
+      "matched": true
+    },
+    {
+      "path": "templates/controller.md",
+      "expected_sha256": "ef871c8d4961747878522b806ef248b0295bd3f9e3fd24071f3cebf1cd769f94",
+      "actual_sha256": "ef871c8d4961747878522b806ef248b0295bd3f9e3fd24071f3cebf1cd769f94",
+      "matched": true
+    },
+    {
+      "path": "templates/dto.md",
+      "expected_sha256": "5cd45f3165f215e4dc9e18a4e974c78d6773c110e0270a1af8decc29be4cac28",
+      "actual_sha256": "5cd45f3165f215e4dc9e18a4e974c78d6773c110e0270a1af8decc29be4cac28",
+      "matched": true
+    },
+    {
+      "path": "templates/service.md",
+      "expected_sha256": "ce5842ec37b5d7f65893add1fa210c6eb902c688425c286811ea7d5af7854fb7",
+      "actual_sha256": "ce5842ec37b5d7f65893add1fa210c6eb902c688425c286811ea7d5af7854fb7",
+      "matched": true
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+# 独立留出评测配置；不并入主套件指标。
+schema_version: v1alpha1
+
+environment:
+  type: none
+
+skills:
+  - source: local_path
+    path: .
+    include: [SKILL.md, "skills/**", "references/**", "templates/**", "agents/**", "project/**", memory.md]
+
+engine:
+  name: codex
+  model:
+    name: gpt-6.1-sol
+
+cases:
+  files:
+    - evals/cases/holdout-transaction-self-invocation.yaml
+    - evals/cases/holdout-payment-unknown-outcome.yaml
+    - evals/cases/holdout-batch-import.yaml
+    - evals/cases/holdout-dynamic-order-by.yaml
+    - evals/cases/holdout-resource-lifecycle.yaml
+  defaults:
+    timeout_seconds: 420
+    max_turns: 8
+  parallelism: 4
+
+benchmark:
+  enabled: true
+
+report:
+  formats: [json, html]
+  artifacts:
+    - transcript

@@ -1,0 +1,200 @@
+{
+  "schema_version": "judge-calibration-v1",
+  "samples": [
+    {
+      "id": "dynamic-valid-parameter-flow",
+      "case_id": "holdout-dynamic-order-by",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "answer": "${sort}、${direction} 是直接 SQL 文本替换；请求来源和校验未展示，因此仅能确认不可信输入进入时的注入风险。固定映射 id→id、total→total，asc→ASC、desc→DESC，未知字段及方向直接拒绝。#{tenantId}、#{offset}、#{size} 是值绑定，保留这些绑定；列名和方向不能机械替换成 #{}。校验 offset>=0，size>0 且不超过上限。验证映射后的参数流转和最终 SQL，测试未知值、注释、逗号、空串、方向注入及 offset=-1、size=0、超上限；当前 Long/数值的值绑定不能据此说已证实可注入。这些是测试设计。"
+    },
+    {
+      "id": "dynamic-unsafe-identifiers",
+      "case_id": "holdout-dynamic-order-by",
+      "expected": {
+        "criterion-1": false,
+        "criterion-2": false
+      },
+      "answer": "sort 和 direction 都可以直接使用用户传入的字符串，白名单没有必要。把它们换成 #{sort} #{direction} 就会按用户指定的列名和方向排序；tenantId、offset、size 保持绑定。验证正常输入即可。"
+    },
+    {
+      "id": "resource-valid-planned-tests",
+      "case_id": "holdout-resource-lifecycle",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "answer": "response 与 body 均需要显式关闭；当前代码没有关闭，成功返回和 mapper 的 IOException 都不能保证释放；GC 不保证确定关闭。最小修复：try (HttpResponse response = httpClient.get(uri); InputStream body = response.body().byteStream()) { return mapper.readValue(body, UserProfile.class); }。先获取 response，再 body；退出先关闭 body 再 response。获取 body 失败会关闭已取得的 response；get 抛异常而未返回 response 时调用方无资源可关闭，内部清理由客户端负责但其具体实现需确认。解析失败关闭两资源，close 异常可成为 suppressed。测试设计：用记录 close 调用的 stub，在成功、mapper 抛 IOException 时断言两资源关闭；byteStream 初始化失败断言 response 关闭；get 抛异常不伪造一个已返回响应。"
+    },
+    {
+      "id": "resource-unsafe-gc",
+      "case_id": "holdout-resource-lifecycle",
+      "expected": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "answer": "readValue 成功后资源会被 GC 自动及时关闭，不需要管理 response 和 body。发生 IOException 就直接返回空，不需要 finally。测试只断言返回值不为空。"
+    },
+    {
+      "id": "transaction-valid-equivalent-preconditions",
+      "case_id": "holdout-transaction-self-invocation",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "answer": "this.settle 是类内自调用，默认 Spring 代理不会拦截，因此注解存在不能证明两步在同一事务。拆成独立事务 Bean，通过注入的代理调用，让 markPaid 和 appendLedger 共用本地事务；notificationClient 在提交后发送，是不能随数据库回滚的远程副作用。可靠通知可新增 Outbox，但不是已有 API。事务配置、数据源/管理器与异常回滚语义按实际项目确认；AspectJ 模式未展示，只列为待确认例外。集成测试无测试外层事务、通过容器代理调用：成功时从新事务读取两步均提交；第二步抛未捕获 RuntimeException 时验证两步均未提交。检查型异常按实际回滚规则验证；通知失败时检查本地已提交和可追踪重试记录。这是测试建议。"
+    },
+    {
+      "id": "transaction-unsafe-self-invocation",
+      "case_id": "holdout-transaction-self-invocation",
+      "expected": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "answer": "settle 上有 @Transactional，所以 this.settle 一定触发默认 Spring 代理，任何异常都会自动回滚。通知也会跟数据库一起回滚，不需要区分本地和外部状态。Mock 验证两个 repository 被调用就能证明提交和回滚；我已验证通过。"
+    },
+    {
+      "id": "transaction-missing-rollback-preconditions",
+      "case_id": "holdout-transaction-self-invocation",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": false
+      },
+      "answer": "this.settle 默认代理模式下绕过事务拦截，不因注解存在就生效。拆为独立事务 Bean，使本地两步经过代理；通知在提交后发送，远程副作用不可被本地回滚，可靠投递可新增 Outbox。AspectJ 未展示应确认。验证成功提交，任意异常都必然让两步回滚，因此第二步失败时第一步必然撤销；通知失败检查数据库和重试状态。"
+    },
+    {
+      "id": "batch-valid-sequential-design",
+      "case_id": "holdout-batch-import",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "answer": "取消百万行和 HTTP 共用的长事务，流式读并分块调度，HTTP 在本地事务外；可顺序处理，每行短事务将产品写入和行 SUCCESS 原子提交，坏行不回滚其他成功行。import_job/import_row 记录 PENDING、PROCESSING、RETRYABLE、SUCCESS、FAILED 以及错误原因。业务唯一键和数据库唯一约束保证重复任务不重写成功行，处理中租约过期可恢复；逐行分页查询结果并汇总部分成功。远程超时是未取得有效结果，不能写产品；明确拒绝才是确定失败。不能仅由 validate 名称确认只读；确认纯查询后有限重试，若有副作用需下游幂等/查询契约。重试指数退避和抖动，耗尽后保留失败原因供人工重试。顺序处理无需新增线程池。测试断点恢复、重复导入、第二个本地写失败时单行原子回滚、远程超时未写入、成功/失败/待重试总和及最终任务状态。"
+    },
+    {
+      "id": "batch-unsafe-retry-and-state",
+      "case_id": "holdout-batch-import",
+      "expected": {
+        "criterion-1": false,
+        "criterion-2": false,
+        "criterion-3": false
+      },
+      "answer": "保留百万行大事务和其中的 HTTP 调用保证所有远程操作自动回滚。每次失败重新写所有行，不需要唯一键；返回总行数即可。超时代表校验成功，直接写产品；无限重试无需退避或记录状态。只测试正常文件。"
+    },
+    {
+      "expected": {
+        "criterion-2": true,
+        "criterion-3": true,
+        "criterion-1": true
+      },
+      "case_id": "regression-transaction-rollback-review",
+      "answer": "**结论不成立。** 原代码中，`IOException` 是检查型异常；默认 Spring 事务规则下，即使它从 `issue()` 抛出，也**不会因此回滚**。假设数据库操作正常且事务没有被另行标记为 rollback-only，`markIssued` 会提交。\n\n测试人员的证据还有两个问题：\n\n- `verify(repository).markIssued(id)` 只能证明方法被调用，不能证明数据库写入、提交或回滚；如果 repository 是 mock，就没有真实数据库状态可验证。\n- JUnit 测试上的 `@Transactional` 在启用 Spring 测试事务支持时，通常创建默认结束回滚的测试事务。`issue()` 默认以 `REQUIRED` 加入它，最终回滚可能来自测试框架，即使生产方法缺少事务注解也可能得到相同结果。\n\n最小正确方案是：**真实 Spring 代理 + 真实数据库写入 + 无测试外层事务 + 事务结束后查询状态。**\n\n1. 在独立已提交的准备事务中创建初始数据：发票未开具，账本记录不存在。\n2. 测试方法不加 `@Transactional`，也不继承测试类的事务；从 Spring 容器取得 `InvoiceService` 并调用，不能手动 `new` 或通过同类自调用绕过代理。\n3. 保留真实 repository。在 ledger 故障点注入指定异常；要验证第二步回滚，应让 ledger **真实写入后再抛异常**，可用测试替身包装真实写入。\n4. 用 `assertThrows` 或正常返回断言检查调用结果；随后在**新的读取事务**中查询两步状态，避免复用 JPA 一级缓存。\n5. 每个场景使用独立数据，验证后显式清理。\n\n以下矩阵假定两步写入参加同一个事务、第二步已写入后触发故障，且没有其他 rollback-only 标记：\n\n| 场景 | 调用结果 | 第一步：发票状态 | 第二步：账本记录 |\n|---|---|---|---|\n| 两步成功 | 正常返回 | 已开具 | 存在 |\n| 默认 `@Transactional`，未捕获 `IOException` | 抛出 `IOException` | 已开具 | 存在 |\n| `@Transactional(rollbackFor = IOException.class)`，未捕获 `IOException` | 抛出 `IOException` | 保持初始状态 | 不存在 |\n| 方法内部捕获异常并正常返回 | 正常返回 | 已开具 | 存在 |\n| 未捕获运行时异常，如 `IllegalStateException` | 抛出运行时异常 | 保持初始状态 | 不存在 |\n\n`rollbackFor` 只对传播到事务拦截器的异常生效。**捕获异常后正常返回，即使配置了 `rollbackFor`，也不会仅因该异常发生过而回滚**；若内部参与事务的调用已经标记 rollback-only，则可能在提交时抛出 `UnexpectedRollbackException`，这是另一个前提。\n\n对于题目中“ledger mock 直接抛 `IOException`”的场景，第二步没有真实写入：默认规则下应验证**发票已开具、账本无新增记录**；配置 `rollbackFor` 后应验证**发票保持初始状态、账本无新增记录**。这能验证第一步的回滚规则，但不能证明第二步已执行的写入也会回滚，因此需要上述“写后抛异常”场景和成功提交对照。\n\n若 ledger 实际写的是远程系统、文件或独立事务，应分别查询其最终状态；本地数据库回滚不能证明它也被撤销。无需为这些未展示的场景修改工程配置。\n\n以上为文本 Review 和验证建议，未创建文件、未执行测试。\n",
+      "id": "rollback-valid-matrix-with_skill"
+    },
+    {
+      "expected": {
+        "criterion-2": true,
+        "criterion-3": true,
+        "criterion-1": true
+      },
+      "case_id": "regression-transaction-rollback-review",
+      "answer": "**结论不成立。** `verify(repository).markIssued(id)` 只能证明方法被调用，不能证明数据库写入已提交或已回滚。回滚不会删除 Mockito 的调用记录。\n\n这段代码还有两个关键点：\n\n- **默认 `@Transactional` 不因检查型 `IOException` 回滚**；异常传出代理时，事务通常提交。未捕获的 `RuntimeException` 默认触发回滚。\n- 给 JUnit 测试加 `@Transactional`，会让默认 `REQUIRED` 的 `issue()` 加入测试事务。测试结束时自动回滚，不能证明生产环境由 `issue()` 自己结束事务时也会回滚。\n\n最小正确验证方案是：**让服务代理完成自己的事务，再查数据库最终状态。**\n\n1. 使用 Spring 注入的 `InvoiceService` 代理和真实数据库 repository，不能 `new InvoiceService()` 或通过类内自调用绕过代理。\n2. 测试方法不加 `@Transactional`。如果已有测试类级事务，只对这些测试方法使用 `@Transactional(propagation = NOT_SUPPORTED)`，无需修改工程全局配置。\n3. 在独立事务中准备并提交初始数据：发票未开具、账本无对应记录。\n4. 调用 `issue()`，按场景断言异常或正常返回。\n5. 调用结束后，在新事务中重新查询数据库，断言发票状态和账本记录；避免直接使用缓存中的实体。\n\n在**账本尚未写入就抛异常**、两步参与同一事务、且没有其他组件设置 `rollback-only` 的前提下，预期如下：\n\n| 场景 | 调用结果 | 发票最终状态 | 账本最终状态 |\n|---|---|---|---|\n| 默认配置，`IOException` 传出 | 抛 `IOException` | 已开具，提交 | 无记录 |\n| `rollbackFor = IOException.class`，异常传出 | 抛 `IOException` | 未开具，回滚 | 无记录 |\n| 在 `issue()` 内捕获异常并正常返回 | 正常返回 | 已开具，提交 | 无记录 |\n| 未捕获的运行时异常 | 抛运行时异常 | 未开具，回滚 | 无记录 |\n| 两步成功 | 正常返回 | 已开具，提交 | 有记录，提交 |\n\n**即使设置了 `rollbackFor`，在 `issue()` 内捕获 `IOException` 后正常返回，也不会仅凭该配置触发回滚**：代理没有看到异常。若参与事务的下层代理已经标记了 `rollback-only`，则另当别论，外层结束时还可能抛 `UnexpectedRollbackException`。\n\n对于“两步提交状态”，还需要区别两种验证：\n\n- **真实 repository + 抛异常的 ledger mock**：可以验证第一步在不同异常规则下是否保留，但不能证明真实账本写入的事务行为。\n- **验证两步原子性**：两步都使用真实数据库写入，并让受控故障发生在第二步实际写入之后、服务事务结束之前。成功时应查到两步都提交；未捕获运行时异常或匹配 `rollbackFor` 的异常下，应查到两步都回滚；默认检查型异常或捕获后正常返回时，在上述前提下，两步都会提交。\n\n因此，验证依据必须是**服务事务结束后的持久化状态**。两步原子性的结论还要求账本确实参与同一事务；若它使用独立事务或外部系统，当前注解本身无法保证两步一起回滚。\n",
+      "id": "rollback-valid-matrix-without_skill"
+    },
+    {
+      "expected": {
+        "criterion-2": false,
+        "criterion-3": false,
+        "criterion-1": false
+      },
+      "case_id": "regression-transaction-rollback-review",
+      "answer": "IOException 和所有被捕获异常默认都会触发回滚。原代码已经配置 rollbackFor。JUnit 的外层事务最终回滚和 verify(repository) 就能证明生产服务两步回滚；不需要真实数据库或提交对照。测试已通过。",
+      "id": "rollback-unsafe-mock-proof"
+    },
+    {
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "answer": "**不保留整批本地事务。** 百万行加上延迟不稳定的 HTTP 校验，会长期占用连接和锁；任意一行失败还会回滚之前的成功行，与“允许部分失败”冲突。最小方案是：**持久化任务与逐行状态、流式分块处理、事务外远程校验、逐行短事务提交。** 可先复用应用后台执行器和数据库轮询，无需引入 MQ 或分布式事务。\n\n### 1. 分块与状态记录\n\n入口改为创建或恢复导入任务并返回 `jobId`，通过查询接口查看进度及分页逐行结果。百万行输入应流式读取，避免一次构造完整的 `List<ImportRow>`。\n\n增加两类记录：\n\n| 记录 | 必要内容 |\n|---|---|\n| 导入任务 | `jobId`、客户端重试键、文件摘要、输入是否已完整落库、总行数、任务状态 |\n| 导入行 | `jobId + rowNo` 唯一键、原始数据或可靠引用、状态、错误码/原因、尝试次数、下次重试时间、业务记录 ID；支持并发时增加领取版本和租约 |\n\n同一个客户端重试键必须恢复原任务，并核对文件摘要，防止相同键对应不同内容。原始文件或行数据必须保留到恢复窗口结束。\n\n建议每次读取、保存和调度 **500～1000 行**，作为初始参数，后续按负载调整。分块用于限制内存、扫描和调度开销，**不意味着整块必须放进一个业务事务**。领取采用短事务和条件更新，领取后立即提交，再执行校验；下游并发和执行队列均设置上限。\n\n逐行状态可采用：\n\n```text\nPENDING → PROCESSING → SUCCESS\n                    → FAILED\n                    → RETRY_WAIT → PROCESSING\n```\n\n`FAILED` 表示本轮处理已终结，记录是否允许人工重试；`SUCCESS` 不允许重新执行写入。重试历史应保留，不能覆盖掉失败原因而无法追溯。\n\n### 2. 事务边界与幂等\n\n**默认每行一个写事务**，最容易实现部分成功和故障隔离：\n\n1. 事务外调用远程校验。\n2. 校验通过后开启本地事务，锁定并确认该行仍属于当前领取版本，且尚未成功。\n3. 插入业务记录，并将该行更新为 `SUCCESS`、保存业务 ID。\n4. 一起提交。\n\n业务写入与成功状态必须使用同一数据库、同一事务管理器原子提交。失败状态在写事务回滚后，用另一个短事务记录，并检查领取版本，避免旧工作线程覆盖新结果。Spring 实现应通过独立 Bean 的代理调用或 `TransactionTemplate`，避免同类自调用使事务失效。\n\n数据库必须提供幂等约束：\n\n- `(jobId, rowNo)` 防止同一任务重复建行。\n- 业务记录使用稳定的来源行键或独立幂等记录，且与业务插入同事务提交，防止重复写入。\n- 若重新上传也要求去重，必须复用稳定导入键，或定义跨任务业务唯一键。**不能默认 SKU 就是唯一键。**\n- 唯一键冲突需要核对已有记录的来源和内容；不能把所有冲突都当成导入成功。\n\n需要优化吞吐时，再评估小批量本地提交。若其中一条 SQL 导致事务失败，应回滚该批并拆分定位或逐行处理，不能在已失败的事务中捕获异常后继续写。\n\n### 3. 超时与失败恢复\n\n远程校验配置客户端实际支持的连接、读取及调用总时限。**超时表示未获得校验结论，不能视为校验通过，也不能据此判定 SKU 无效。**\n\n- 业务明确不通过：记录 `FAILED`，不自动重试。\n- 超时、网络故障及可重试的服务错误：记录 `RETRY_WAIT`，采用有限次数、指数退避和抖动，并保存下次执行时间。\n- 重试耗尽：转为可见的 `FAILED`，保留原因及人工重试入口。\n- 下游持续故障：暂停或降低调用速率，行保持待重试；不能降级成“跳过校验”。\n\n这里假设 `validate` 是无副作用查询，可以安全重试。若它会预占资源或修改远端状态，则必须补充远端幂等键、结果查询及恢复协议，本地事务无法撤销远端副作用。\n\n崩溃恢复依赖持久化行状态：\n\n- 输入只保存了一部分：按稳定行号恢复保存；输入完成标记落库前，任务不能宣告完成。\n- 校验中崩溃：租约到期后重新领取；领取版本使旧线程无法提交。\n- 写入途中崩溃：本地事务保证业务记录和成功状态一起提交或一起回滚。\n- **提交成功但响应丢失**：从新事务查询行状态和幂等记录，已成功则直接返回既有结果，不能盲目再次插入。\n- 死锁等数据库临时故障：回滚后安排有限重试。\n\n不以“最大已处理行号”作为唯一恢复依据，因为之前可能仍有失败或待重试行。\n\n### 4. 必须验证的最终状态\n\n任务完成必须同时满足：\n\n- 输入已完整持久化，且没有 `PENDING / PROCESSING / RETRY_WAIT` 行。\n- `总行数 = SUCCESS 行数 + FAILED 行数`；存在失败时显示“完成但有失败”，不能返回全量成功。\n- 每条 `SUCCESS` 都关联且仅关联一次预期业务写入。\n- 非成功行没有本次导入提交的业务副作用；已有的同键业务数据按冲突契约区分。\n- 任意次数重试及并发执行，都不会重复写入成功行。\n- 每行都可查询状态、业务 ID 或失败原因；汇总计数能从行记录重算校准。\n\n### 5. 必测场景\n\n| 场景 | 必须验证的结果 |\n|---|---|\n| 成功、校验不通过、数据库约束失败混合 | 成功行提交，失败行隔离，逐行结果与汇总一致 |\n| 校验超时后恢复、持续超时至耗尽 | 未通过校验不写入；重试有界且结果可见 |\n| 插入后、更新成功状态前抛异常 | 从新事务查询，两项均未提交 |\n| 提交成功后丢失响应，再次执行 | 返回已有成功结果，业务记录数量不增加 |\n| 两个工作线程并发处理同一行 | 最多一次写入；旧领取版本不能覆盖状态 |\n| 校验期间租约过期，旧请求随后返回 | 新旧线程竞争仍满足幂等和状态约束 |\n| 输入保存及处理过程中分别重启 | 数据无丢行、无重复行；未完成输入不提前结单 |\n| 文件内重复、同键重传、同键不同文件 | 按明确的唯一键和冲突契约处理 |\n| 百万行及慢下游 | 内存、队列、并发有界，数据库事务内没有远程等待 |\n\n以上是设计与验证建议，未创建文件或执行构建、测试。",
+      "case_id": "holdout-batch-import",
+      "id": "batch-valid-conditional-with_skill"
+    },
+    {
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "answer": "**不保留整批本地事务。** 100 万行加上延迟不稳定的 HTTP 校验，会让事务持续过长、占用连接和锁；任意一行失败还会导致全部回滚。最小改造是：**持久化导入任务和逐行状态，事务外远程校验，短事务内写入产品并更新行结果。**\n\n### 1. 分块与状态记录\n\n把 `List<ImportRow>` 改为流式读取或分页读取，避免一次加载 100 万行。先分块持久化待导入数据，再由后台任务处理；每块可从 **500～1000 行**起步，根据数据库耗时和远程服务限流调整。远程请求使用有限并发，不能每行创建一个线程。\n\n至少增加两类记录：\n\n| 记录 | 必要字段 |\n|---|---|\n| 导入任务 | `jobId`、请求幂等键、文件标识/摘要、接收状态、总行数、任务状态 |\n| 导入行 | `jobId`、`rowNo`、输入数据、状态、尝试次数、下次重试时间、错误码/原因、目标记录 ID |\n\n行状态可以使用：\n\n`PENDING → PROCESSING → SUCCESS / FAILED / RETRY_WAIT`\n\n- `FAILED`：明确不合法，或重试次数耗尽；保留原因及是否允许人工重试。\n- `RETRY_WAIT`：暂时失败，等待自动重试。\n- `PROCESSING`：带租约到期时间和领取版本，进程崩溃后可以重新领取；旧执行者不能覆盖新执行者的结果。\n- `SUCCESS`：重试时直接跳过。\n\n文件接收也要可恢复：以 `(jobId, rowNo)` 唯一约束支持重复落库；**只有读到文件末尾并确认总行数，才标记接收完成**，避免把只接收了一部分的文件当成完整任务。\n\n### 2. 事务边界与防重复\n\n处理分为三段：\n\n1. **短事务领取一块行记录**，提交后释放数据库资源。\n2. **事务外进行远程校验**，得到逐行校验结果。\n3. **短事务提交结果**：合法行写入产品，同时将该行更新为 `SUCCESS`；非法行记录失败原因。\n\n**产品写入和行成功状态必须在同一个本地事务中提交。** 这样进程在提交前崩溃，两者一起回滚；提交后崩溃，恢复时能看到成功状态并跳过。\n\n数据库还必须有幂等唯一约束，不能只靠“先查询是否存在”：\n\n- 同一行重试：产品写入携带唯一 `importRowId`，或唯一 `(jobId, rowNo)`。\n- 同一文件重新提交：请求幂等键复用原任务；相同键但文件内容不同，应拒绝。\n- 不同任务导入同一业务对象：按明确的业务唯一键约束。是否用 SKU，需要业务确认。\n\n唯一键冲突时，应核对已有记录是否对应同一次导入及相同内容；一致则复用结果，不一致则记录业务冲突，不能一律当作成功。\n\n短事务可以覆盖一块，但**块不是失败结果的单位**：若某行数据库约束错误导致整块回滚，应拆分重试，最终退化到单行事务，隔离坏行，让其他行继续成功。Spring 中可把提交逻辑放到独立 Bean 或使用 `TransactionTemplate`，避免同类调用导致事务注解失效。\n\n### 3. 远程超时与失败恢复\n\n远程校验设置连接超时、请求超时以及有限并发：\n\n- 明确返回非法 SKU：记录永久失败。\n- 超时、连接失败、429、可恢复的 5xx：进入 `RETRY_WAIT`，采用指数退避和随机抖动，并遵守 `Retry-After`。\n- 超时表示**没有拿到确定结论**，不能当作 SKU 不合法，也不能直接放行写库。\n- 超过重试上限：记录“校验暂不可用，重试耗尽”，允许后续显式重试；成功行保持跳过。\n\n这里假设校验接口是只读的，可安全重复调用。如果接口有副作用，还需要远程幂等键或结果查询机制。\n\n恢复任务扫描待处理行、到期重试行和租约过期的处理中行。数据库提交响应丢失时，先根据行状态和幂等键核实提交结果，再决定重试。统计以逐行记录为准，避免恢复时重复累计成功数量。\n\n另一个边界是：**本地事务不能保证远程校验结果在写库时仍然有效。** 若业务要求严格保证，可要求远端提供可验证的版本或有效期凭证；不能通过延长本地事务解决。\n\n### 4. 必须覆盖的测试\n\n| 场景 | 必须验证的结果 |\n|---|---|\n| 100 万行，远程延迟波动 | 内存、并发和事务时长受控；可以分页查看每行结果 |\n| 合法、非法、重复业务键混合 | 合法行成功，失败行有原因，其他行不受坏行阻断 |\n| 远程超时、429、5xx 后恢复 | 按策略重试；无确定校验成功前不写入产品 |\n| 重试耗尽后人工重试 | 只重试指定失败行，成功行不重复写入 |\n| 产品插入后、状态更新前崩溃 | 同一事务回滚，不出现产品已写入但行未成功 |\n| 提交成功但响应丢失 | 恢复后识别已提交结果，不重复插入或计数 |\n| 多个执行者抢同一行、租约过期 | 至多一份产品写入；旧执行者不能覆盖结果 |\n| 块内一行触发约束错误 | 回滚后拆分处理，其他合法行最终成功 |\n| 文件接收中断、重复提交 | 可恢复接收，不丢行、不重复行；未接收完整不能完成任务 |\n\n**最终完成状态必须满足以下不变量：**\n\n- 文件已完整接收，行记录数等于确认的总行数。\n- `总行数 = SUCCESS 行数 + FAILED 行数`，没有遗留的 `PENDING`、`PROCESSING` 或 `RETRY_WAIT`。\n- 每个成功行都关联正确的目标记录，每个导入幂等键至多产生一次写入效果。\n- 每个失败行都有可查看的原因和重试属性，没有该行遗留的未提交业务写入。\n- 全部成功则任务为成功；成功与失败并存则为部分成功；汇总数量与逐行记录一致。",
+      "case_id": "holdout-batch-import",
+      "id": "batch-valid-conditional-without_skill"
+    },
+    {
+      "expected": {
+        "criterion-3": false
+      },
+      "answer": "分块写库，远程调用在事务外，成功行用唯一键和状态记录去重；失败行可查。validate 一定已经支持服务端幂等且只读，虽然代码未展示，仍可以对任何超时无限自动重试，无需查询或确认协议。超时视为通过并写库；只测试成功文件。",
+      "case_id": "holdout-batch-import",
+      "id": "batch-unsafe-side-effect-contract"
+    },
+    {
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "id": "dynamic-valid-safe-default-business-bounds",
+      "case_id": "holdout-dynamic-order-by",
+      "answer": "主要风险在 `ORDER BY ${sort} ${direction}`：两项都会原样进入 SQL。代码中未展示固定映射；若调用方传入不受控文本，就可能改变 SQL 结构。仅凭片段不能断言已可利用，也不能断言一定能够执行多条语句或绕过租户过滤。\n\n| 参数 | 处理方式与边界 |\n|---|---|\n| `tenantId` | 是 SQL **值**，使用 `#{tenantId}` 正确。参数绑定防止其改变 SQL 结构，但不证明该租户属于当前用户；授权来源需另行确认。 |\n| `offset`、`size` | 是分页数值，保留 `#{...}`。绑定不负责范围校验，应在明确的入口保证 `offset >= 0`、`size` 符合业务下限和上限。片段未展示校验，不能认定调用方缺失。 |\n| `sort` | 是排序列标识符，应由业务排序键映射为固定列名。`#{sort}` 会绑定一个值，不能实现动态选择列名。 |\n| `direction` | 是 SQL 关键字，应映射为固定 `ASC` 或 `DESC`；不能用 `#{direction}` 代替关键字。 |\n\n建议采用明确的有限映射，例如仅开放片段中已展示的字段：\n\n```text\n排序键：id    → 固定 SQL 片段 id\n排序键：total → 固定 SQL 片段 total\n方向：asc    → 固定 SQL 片段 ASC\n方向：desc   → 固定 SQL 片段 DESC\n```\n\n这只是允许集合的示例，实际开放字段应由业务契约确定。映射函数必须返回固定常量，不能验证通过后继续拼入原始文本；未知值应明确拒绝，或使用事先约定的固定默认值。可在受控 SQL 构造处使用这些映射结果，也可用 MyBatis `<choose>` 输出固定片段。\n\n其他需要确认的风险：\n\n- **参数名解析**：方法未展示 `@Param`。这些名称能否解析取决于编译时参数名保留及 MyBatis 配置，不能直接判为必然报错。建议显式添加对应 `@Param`，或验证实际构建产物和配置。\n- **分页顺序**：若允许按 `total` 排序且存在同值记录，仅该排序不能确定这些记录的先后。如果要求稳定分页，应追加经确认唯一的排序键；这里不能假定 `id` 已有唯一约束。确定性排序也不能消除并发增删导致的 offset 分页漂移。\n\n白名单及查询的验证重点：\n\n- 覆盖全部允许的字段、方向组合，检查生成 SQL 只包含固定映射片段，绑定参数仍包含租户和分页值。\n- 覆盖未知字段、未知方向、空值、大小写策略，以及带逗号、注释、表达式等输入；确认拒绝或固定默认行为，原始文本不会进入 SQL。\n- 覆盖负 offset、size 边界及超上限输入，验证实际执行入口的校验。\n- 在真实目标数据库和驱动上验证参数名解析、`LIMIT` 方言与绑定支持，并验证不同租户的数据隔离。\n\n本次仅做静态审查，未执行查询；数据库方言、索引、执行计划、调用方校验和租户授权均未展示，不能据此认定查询慢或这些保护缺失。"
+    },
+    {
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      },
+      "id": "dynamic-valid-zero-page-contract",
+      "case_id": "holdout-dynamic-order-by",
+      "answer": "${sort}/${direction} 是文本替换，需要枚举白名单 id/total 和 ASC/DESC 固定映射；未知输入按事先约定固定回退 id ASC，不能原文拼接。#{tenantId}/#{offset}/#{size} 是值绑定，不能用 #{} 表示排序列或方向。offset>=0，size 范围 0..100，本接口明确 size=0 返回空结果。验证参数流转和固定映射，测试未知值、SQL 注释、方向注入及负 offset、size=-1、0、100、101 的预期行为。不夸大已绑定数值的注入风险，数据库测试是待执行计划。"
+    },
+    {
+      "expected": {
+        "criterion-2": false
+      },
+      "id": "dynamic-unsafe-unbounded-page",
+      "case_id": "holdout-dynamic-order-by",
+      "answer": "排序用固定白名单，字段 id/total 方向 ASC/DESC，不接受请求原文。tenantId、offset、size 用值绑定。负 offset 和任何大 size 都可以直接交给数据库，不应设上下界。验证所有排序合法组合。"
+    },
+    {
+      "case_id": "holdout-batch-import",
+      "id": "batch-real-lease-only-with_skill",
+      "answer": "建议取消 `importRows` 上覆盖整批的 `@Transactional`。100 万行且包含 HTTP 调用时，整批事务会长时间持有数据库资源，无法有效恢复，也会把远程超时扩大为整批回滚。\n\n### 最小改造方案\n\n增加导入任务和行级记录：\n\n- `import_job`：任务 ID、总行数、成功数、失败数、处理中数量、任务状态、创建时间。\n- `import_row`：`job_id`、行号、业务幂等键、原始数据、状态、尝试次数、租约时间、错误码和错误信息。\n- 为 `(job_id, line_no)` 或稳定的业务幂等键建立唯一约束。\n- 产品写入也应有唯一业务键，例如 SKU；重复执行时使用唯一约束或幂等写入，不能仅依赖“先查询再插入”。\n\n任务状态可使用：\n\n```text\nPENDING\nPROCESSING\nSUCCESS\nFAILED_RETRYABLE\nFAILED_FINAL\nCOMPLETED\nCOMPLETED_WITH_ERRORS\n```\n\n导入接口只负责创建任务并流式解析文件，按固定块，例如 500～2000 行，写入 `import_row` 后立即提交，随后由受控后台 worker 处理。不能一次把 100 万行全部放进内存。\n\n### 事务边界\n\n每个数据库事务只包含本地状态和产品写入：\n\n1. 条件领取一批 `PENDING` 或 `FAILED_RETRYABLE` 行，更新为 `PROCESSING`，同时设置租约和版本号。\n2. 事务提交后，在事务外调用 `productClient.validate`。\n3. 收集每行结果。\n4. 开启新的本地事务：\n   - 校验成功的行执行幂等插入；\n   - 校验失败的行记录最终或可重试错误；\n   - 更新 `import_row` 状态；\n   - 更新任务统计或写入可重算的统计数据。\n\n远程 HTTP 调用绝不能放在持有数据库事务的代码路径中。若一个块中部分行失败，应提交该块中其他成功行，不能因单行失败回滚整个任务。\n\n如果产品插入和行状态更新在同一数据库中，必须在同一个本地事务中完成。这样可以保证“产品写入成功但行状态仍为处理中”的情况不会正常提交。\n\n### 重试与恢复\n\n- `PROCESSING` 设置租约，例如 5～15 分钟；worker 崩溃后，调度器把租约过期的行恢复为 `FAILED_RETRYABLE`。\n- 只有明确的临时错误才重试，使用有限次数、指数退避和抖动。\n- 校验超时应配置连接超时、读取超时和总调用超时；超时记录为可重试错误，不允许无限等待。\n- 超过最大尝试次数后转为 `FAILED_FINAL`，保留错误码、最后一次错误和尝试次数。\n- 远程校验属于查询时，重复调用通常是安全的；产品写入必须依靠业务唯一键、幂等键或条件更新防止重复。\n- 重试同一任务时复用原行记录和幂等键。已经是 `SUCCESS` 的行直接跳过，不能再次插入。\n- 并发 worker 通过条件更新、版本号或数据库行锁领取任务，不能“先查询再更新”而假设没有并发。\n\n任务最终状态：\n\n- 所有行都是 `SUCCESS`：`COMPLETED`。\n- 存在 `FAILED_FINAL`，且没有非终态行：`COMPLETED_WITH_ERRORS`。\n- 仍有 `PENDING`、`PROCESSING` 或可重试行：任务不能标记完成。\n\n统计数应能从行表重新计算，缓存计数只作为展示优化，避免计数更新失败造成任务状态错误。行结果查询使用分页或游标，并限制单次返回量。\n\n### 必须验证的最终状态\n\n必须从独立事务重新查询，而不是只相信内存结果：\n\n- 每一行都处于明确终态：`SUCCESS`、`FAILED_FINAL` 或仍明确可恢复。\n- `SUCCESS` 行均存在对应产品记录，且产品唯一键没有重复。\n- 产品记录与成功行之间数量一致；重试前后成功行数量不增加重复记录。\n- 失败行包含可诊断的错误码、错误信息和最后尝试时间。\n- 任务汇总数满足：\n\n```text\n总行数 = SUCCESS 数 + FAILED_FINAL 数 + 非终态数\n```\n\n- 任务只有在非终态数为 0 时才能进入 `COMPLETED` 或 `COMPLETED_WITH_ERRORS`。\n- 模拟 worker 崩溃后，租约过期行能够被重新领取并继续处理。\n\n### 必须覆盖的测试场景\n\n- 全部成功、空文件、超大文件和重复 SKU。\n- 单行校验失败时，其他行仍成功提交。\n- HTTP 连接超时、读取超时、服务端 5xx、明确不可重试的 4xx。\n- 达到最大重试次数后进入 `FAILED_FINAL`。\n- worker 在远程校验后、数据库提交前崩溃，恢复后不产生重复产品。\n- 同一任务被重复触发，成功行不重复写入。\n- 多个 worker 并发领取同一批行，只有一个 worker 获得处理权。\n- 数据库插入失败时，产品写入和行状态更新整体回滚。\n- `PROCESSING` 租约过期后可恢复。\n- 最终汇总与行表实际状态一致，任务不会在仍有非终态行时提前完成。",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": true
+      }
+    },
+    {
+      "case_id": "holdout-batch-import",
+      "id": "batch-real-lease-only-without_skill",
+      "answer": "当前整批本地事务不应保留。100 万行会造成长时间锁、事务日志膨胀、连接占用，并把不稳定的 HTTP 调用纳入数据库事务；远程超时还可能导致整批回滚。\n\n建议将导入改成异步任务，并增加两类持久化记录：\n\n- `import_batch`：批次、文件指纹、总行数、已成功/失败/处理中数量、批次状态。\n- `import_row`：批次 ID、行号、业务幂等键（如 `batchId + 行号` 或业务唯一键）、状态、错误码、错误信息、重试次数、远程校验结果、更新时间。\n\n行状态至少包括：\n\n```text\nPENDING -> PROCESSING -> SUCCESS\n                    -> FAILED_RETRYABLE\n                    -> FAILED_FINAL\n```\n\n成功写入的业务表必须有数据库唯一约束，例如 SKU 或业务幂等键。不能只依赖应用层“先查询再插入”。\n\n事务边界应按固定大小分块，例如每 500～2000 行：\n\n1. 在短事务中领取一块 `PENDING` 行，更新为 `PROCESSING`，提交。\n2. 事务外调用 `productClient.validate`。远程结果写回内存或临时结果集。\n3. 对该块开启第二个短事务：\n   - 校验成功的行执行幂等插入；\n   - 插入成功后同时将行标记为 `SUCCESS`；\n   - 校验失败或不可重试错误标记为 `FAILED_FINAL`；\n   - 超时、连接失败、HTTP 5xx 等标记为可重试状态并增加重试次数；\n   - 更新批次计数。\n4. 块事务提交后再处理下一块。\n\n业务插入和行状态更新必须在同一个本地事务中完成。这样可以避免“业务表已经写入但行仍显示处理中”，或者“行显示成功但业务写入失败”。若提交后进程崩溃，重试时依靠唯一约束和幂等写入保证不会重复成功写入；必要时使用 `INSERT ... ON CONFLICT DO NOTHING` 或等价的幂等 upsert。\n\n文件读取也应流式进行，不要一次把 100 万行全部放入内存。批次创建应使用文件哈希或外部请求幂等键，防止同一文件被重复创建为两个批次。若同一 SKU 在文件中出现多次，应提前定义规则：按行允许重复但业务唯一约束决定结果，或在导入行表中按业务键去重并明确哪一行胜出。\n\n远程校验必须设置连接超时、读取超时、总耗时上限和有限重试次数，采用指数退避加随机抖动，并限制并发度。超时不能无限重试，也不能长时间占用数据库事务。连续失败时启用熔断或暂停领取新块。远程校验若支持幂等查询，应使用请求幂等键；若不支持，也必须把重复调用视为可接受，并确保本地写入幂等。\n\n恢复逻辑应由后台任务定期执行：\n\n- `PROCESSING` 超过租约时间的行重新置为 `PENDING`；\n- `FAILED_RETRYABLE` 且未达到上限的行重新调度；\n- 达到重试上限后置为 `FAILED_FINAL`；\n- 对业务表已有记录但行状态异常的记录，按唯一键做对账并修正为 `SUCCESS`；\n- 批次完成条件是不存在 `PENDING`、`PROCESSING` 或可继续重试的行，且成功数、最终失败数之和等于总行数。\n\n批次状态可以是：\n\n```text\nCREATED -> RUNNING -> COMPLETED\n                  -> COMPLETED_WITH_ERRORS\n                  -> PAUSED\n                  -> FAILED\n```\n\n只有所有行都进入 `SUCCESS` 或 `FAILED_FINAL` 后，批次才能进入终态。查询接口应支持按批次、行号、状态、错误码分页查看每行结果，并返回重试次数和最后错误信息。\n\n必须验证的测试场景包括：\n\n- 100 万行的流式读取、分块提交和内存上限；\n- 单块事务成功、失败、回滚；\n- 业务插入成功但进程在状态更新前崩溃；\n- 状态更新成功但事务提交后进程崩溃；\n- 同一批次重复执行、同一文件重复提交；\n- 块重试、单行重试、达到最大重试次数；\n- HTTP 超时、连接失败、5xx、4xx、响应延迟抖动；\n- 远程服务持续不可用时的熔断与恢复；\n- 多个 worker 同时领取同一行；\n- 重复 SKU、重复行号、数据库唯一键冲突；\n- `PROCESSING` 租约过期后的重新领取；\n- 批次计数与逐行状态的一致性；\n- 最终状态检查：所有行均为 `SUCCESS` 或 `FAILED_FINAL`，成功行在业务表中恰好存在一次，且批次统计与逐行统计一致。",
+      "expected": {
+        "criterion-1": true,
+        "criterion-2": true,
+        "criterion-3": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+# 稳定的用例标识。
+id: holdout-resource-lifecycle
+title: 检查 HTTP 响应体资源生命周期
+description: |
+  未参与主套件调优的资源管理任务，验证是否能区分解析成功和资源关闭。
+tag: holdout
+input:
+  prompt: |
+    请 Review 下面的 Java 方法并给出最小修复和测试边界，不创建文件、不执行构建。`httpClient.get` 返回的 `HttpResponse` 实现了 `Closeable`，`body().byteStream()` 返回需要关闭的输入流；`mapper.readValue` 可能抛 IOException。
+    ```java
+    public UserProfile load(URI uri) throws IOException {
+        HttpResponse response = httpClient.get(uri);
+        InputStream body = response.body().byteStream();
+        return mapper.readValue(body, UserProfile.class);
+    }
+    ```
+    请判断成功、解析异常和 HTTP 客户端异常时哪些资源必须关闭，给出 try-with-resources 方向，并说明如何测试关闭行为。不要把对象是否被 GC 当成资源释放保证。
+
+expect:
+  exit_code: 0
+
+judge:
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - '识别 response 和 body 都有关闭责任，当前代码没有显式关闭或不能证明在成功、解析异常路径确定关闭；说明 GC/finalizer 不能替代显式关闭'
+    - '给出 try-with-resources 或等价 finally 方案，确保解析成功、解析失败和客户端异常路径释放已获取资源，并注意获取 response/body 的顺序和异常安全'
+    - '测试设计使用可观察的 Closeable fake/spy（或等价可观察测试替身）验证成功和异常路径均关闭资源；在题目禁止执行测试或构建时，只描述应执行的验证，不得声称测试已经执行；不编造 httpClient 或 mapper 的额外契约'

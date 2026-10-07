@@ -1,0 +1,70 @@
+{
+  "schema_version": "metrics-v2",
+  "generated_at_utc": "2026-10-07T02:35:19.4961860Z",
+  "source_iteration": "iteration-1",
+  "source_result_sha256": "7f30ac0dd7d831600dbb898a842d3aa61bef5e88688593176490c3d68a0382c2",
+  "engine": "codex",
+  "model_recorded_by_report": "gpt-6.1-sol",
+  "engine_version": "0.160.0",
+  "case_pattern": "*",
+  "selected_cases": 1,
+  "excluded_cases": 0,
+  "runs_per_case_configuration": 1,
+  "incomplete_pairs": [],
+  "eligible_for_quality_comparison": true,
+  "interpretation": "平均率按用例等权；assertion_pass_rate 包含 expect，judge_assertion_pass_rate 排除 expect 门槛；script Judge 整体计为一个质量断言。基础设施错误或配对不完整时不能发布质量对比。Token 是工具原始记录，不等同于计费金额。",
+  "summary": {
+    "with_skill": {
+      "cases": 1,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "mean_assertion_pass_rate": 1.0,
+      "worst_assertion_pass_rate": 1.0,
+      "mean_judge_assertion_pass_rate": 1.0,
+      "worst_judge_assertion_pass_rate": 1.0,
+      "case_pass_rate": 1.0,
+      "mean_time_seconds": 76.044,
+      "mean_reported_tokens": 90654.0
+    },
+    "without_skill": {
+      "cases": 1,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "mean_assertion_pass_rate": 1.0,
+      "worst_assertion_pass_rate": 1.0,
+      "mean_judge_assertion_pass_rate": 1.0,
+      "worst_judge_assertion_pass_rate": 1.0,
+      "case_pass_rate": 1.0,
+      "mean_time_seconds": 54.639,
+      "mean_reported_tokens": 30718.0
+    },
+    "delta_pp": 0.0,
+    "judge_delta_pp": 0.0
+  },
+  "cases": [
+    {
+      "case_id": "regression-transaction-rollback-review",
+      "title": "事务回滚验证不能假定任何异常都回滚",
+      "configuration": "with_skill",
+      "status": "PASS",
+      "assertion_pass_rate": 1.0,
+      "judge_assertion_pass_rate": 1.0,
+      "time_seconds": 76.044,
+      "reported_tokens": 90654,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "regression-transaction-rollback-review",
+      "title": "事务回滚验证不能假定任何异常都回滚",
+      "configuration": "without_skill",
+      "status": "PASS",
+      "assertion_pass_rate": 1.0,
+      "judge_assertion_pass_rate": 1.0,
+      "time_seconds": 54.639,
+      "reported_tokens": 30718,
+      "infrastructure_error": null
+    }
+  ]
+}

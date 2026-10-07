@@ -1,0 +1,69 @@
+# 稳定的用例标识。
+id: service-tests
+title: 为订单 Service 设计有边界的测试
+description: |
+  验证测试入口是否覆盖成功、边界、异常、权限和幂等行为，并区分 Mock 能证明的内容和必须集成验证的内容。
+tag: functional_test
+input:
+  prompt: |
+    这是文本交付任务：请在最终回复中给出所需代码、设计或审查结论。仅查看题目提供的上下文和适用的 Skill 文件，无需创建工程、写入工作区文件或执行构建；评分对象是最终回复。
+    为下面的 OrderService 补充 JUnit 5 测试设计和关键测试代码。要求覆盖：重复幂等键、库存不足、操作者无权访问订单、保存订单时数据库异常，以及两个相同请求并发到达。请说明哪些场景适合 Mockito 单元测试，哪些必须用数据库或集成测试验证，不要把“调用次数”当成事务正确性的证明。
+    代码如下；保留已给定的方法和参数顺序。InventoryClient.reserve 是 HTTP 库存服务调用，数据库事务只覆盖本地 Repository。未展示的领域类型可作为测试夹具占位，但不能增加 OrderService 或 Repository API 后当成现有行为。
+
+    ```java
+    @Service
+    public class OrderService {
+        private final IdempotencyRepository idempotencyRepository;
+        private final InventoryClient inventoryClient;
+        private final OrderRepository orderRepository;
+        @Transactional
+        public Order create(Long operatorId, CreateOrderCommand command) {
+            if (idempotencyRepository.exists(operatorId, command.idempotencyKey())) {
+                return orderRepository.findByIdempotencyKey(operatorId, command.idempotencyKey());
+            }
+            if (!inventoryClient.reserve(command.items())) {
+                throw new StockInsufficientException();
+            }
+            Order order = orderRepository.save(Order.pending(operatorId, command));
+            idempotencyRepository.markUsed(operatorId, command.idempotencyKey());
+            return order;
+        }
+    }
+    ```
+
+context:
+  files:
+    src/main/java/com/example/order/OrderService.java: |
+      @Service
+      public class OrderService {
+          private final IdempotencyRepository idempotencyRepository;
+          private final InventoryClient inventoryClient;
+          private final OrderRepository orderRepository;
+
+          @Transactional
+          public Order create(Long operatorId, CreateOrderCommand command) {
+              if (idempotencyRepository.exists(operatorId, command.idempotencyKey())) {
+                  return orderRepository.findByIdempotencyKey(operatorId, command.idempotencyKey());
+              }
+              if (!inventoryClient.reserve(command.items())) {
+                  throw new StockInsufficientException();
+              }
+              Order order = orderRepository.save(Order.pending(operatorId, command));
+              idempotencyRepository.markUsed(operatorId, command.idempotencyKey());
+              return order;
+          }
+      }
+
+expect:
+  exit_code: 0
+
+judge:
+  # 接口保持和事务证明边界需要语义判定，关键词不能证明正确性。
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - JUnit 5 和 Mockito 代码针对给定 create(operatorId, command)；重复键使用 exists 与 findByIdempotencyKey，库存不足使用 reserve(command.items()) 返回 false，保存异常针对 orderRepository.save；不把重命名或新增的 Service/Repository 方法当作已有实现
+    - 明确给定 OrderService 没有访问、查询、取消或权限检查 API；无权访问只能列为待确认的契约缺口或隔离标注的未来测试，不能声称对当前代码可以执行权限拒绝测试
+    - 用真实数据库及独立事务验证同键并发、唯一约束和最终订单与幂等记录状态；识别 exists 后 markUsed 的并发窗口，不把调用次数当成事务或幂等正确性的证据
+    - 明确 HTTP 库存预留不受本地数据库回滚保护；保存失败应检验本地回滚并列出远程预留释放、补偿或幂等协议缺口，不得宣称数据库回滚会恢复远程库存

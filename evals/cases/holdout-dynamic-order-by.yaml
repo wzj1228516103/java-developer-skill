@@ -1,0 +1,32 @@
+# 稳定的用例标识。
+id: holdout-dynamic-order-by
+title: Review 动态排序 SQL 的安全边界
+description: |
+  未参与主套件调优的 SQL Review 任务，专门检查标识符与值参数的不同绑定规则。
+tag: holdout
+input:
+  prompt: |
+    请 Review 下面的 MyBatis 查询，只报告有证据的问题、风险、修复和验证边界。不要假定数据库或调用方校验未展示的行为。
+    ```java
+    public interface OrderMapper {
+        @Select("SELECT id, total FROM orders "
+              + "WHERE tenant_id = #{tenantId} "
+              + "ORDER BY ${sort} ${direction} "
+              + "LIMIT #{offset}, #{size}")
+        List<OrderRow> page(long tenantId, String sort, String direction,
+                            int offset, int size);
+    }
+    ```
+    请区分 `tenantId`、分页数值与 SQL 标识符的处理方式，并说明允许的排序字段和方向应如何映射。若建议白名单，请给出验证重点；不要把所有 `${...}` 机械地说成可以用 `#{...}` 直接替换。
+
+expect:
+  exit_code: 0
+
+judge:
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - '识别 `${sort}` 和 `${direction}` 是 SQL 文本替换，不能直接信任请求字符串；由受控枚举/白名单映射到固定 SQL 片段。未知字段和方向可以拒绝或采用事先约定的固定安全默认值，不能回退为拼接原始请求'
+    - '认可 `#{tenantId}`、`#{offset}` 和 `#{size}` 是值绑定，并提醒校验非负偏移、页大小的合法下界和上界；接受 size>0、符合业务下限和上限等表达，允许明确约定 size=0 返回空结果。不要求固定数值；不能放任无限页大小，也不能把 SQL 标识符机械改成 `#{...}` 后仍声称可排序'
+    - '给出输入校验、参数流转或边界测试的验证方案，覆盖白名单映射、异常输入和分页边界；验证可以从 Controller/Service、适配层或直接 Mapper 测试入口展开，不要求固定使用某一层名称。只根据代码证据判断，不夸大 Long/数值参数的当前可利用性，也不能声称已执行数据库测试'

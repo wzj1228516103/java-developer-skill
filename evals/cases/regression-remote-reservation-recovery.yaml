@@ -1,0 +1,38 @@
+# 稳定的用例标识。
+id: regression-remote-reservation-recovery
+title: 远程预留成功后本地保存失败的恢复边界
+description: |
+  回归 iteration-25 的遗漏：识别 HTTP 副作用残留后，还应指出缺失的恢复契约，不能只声明数据库回滚。
+tag: functional_test
+input:
+  prompt: |
+    这是文本交付任务，请在最终回复中给出测试设计和必要的断言骨架，无需创建工程或执行构建。
+    下面是现有 Spring Service。InventoryClient.reserve(String requestId) 是 HTTP 调用，返回 true 表示库存预留已成功；OrderRepository.insert(String requestId) 仅写本地数据库，失败时抛出运行时数据库异常。
+    为“预留成功，但 insert 抛异常”设计回归测试，并判断当前代码是否足以保证库存与订单一致性。保留已有 API，未展示的接口与协议不能当成已经实现。分别说明 Mockito 单测及集成测试能证明的结论。
+
+    ```java
+    @Service
+    public class ReservationService {
+        private final InventoryClient inventoryClient;
+        private final OrderRepository orderRepository;
+        @Transactional
+        public void create(String requestId) {
+            if (!inventoryClient.reserve(requestId)) {
+                throw new StockInsufficientException();
+            }
+            orderRepository.insert(requestId);
+        }
+    }
+    ```
+
+expect:
+  exit_code: 0
+
+judge:
+  # 恢复契约缺失与测试证明边界需要语义判定。
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - 针对给定 create(requestId)、reserve(requestId) 和 insert(requestId) 设计保存异常测试；区分 Mock 异常传播与真实 Spring 代理、独立连接检验本地提交状态；明确本地数据库回滚不能撤销 HTTP 库存预留，远程状态需由有状态 HTTP 测试服务或真实协议验证
+    - 明确当前代码缺少远程预留释放、补偿或下游幂等恢复协议，不能保证端到端一致性；可提出待确认的协议和未来测试，但不得将 release/cancel 等未给出的 API 当成现有行为，也不得用本地回滚或 Mockito 调用次数证明远程恢复

@@ -1,0 +1,26 @@
+# 稳定的用例标识。
+id: regression-inventory-parked-review
+title: 接受 PARKED 持久保留和重放的合法库存方案
+description: |
+  回归 iteration-27 的误判：正确恢复方案不应因状态命名或同义表达被要求改写。
+tag: functional_test
+input:
+  prompt: |
+    请审查下面的库存方案，只给出结论、必需修改及验证边界，不修改文件。不要假定题目之外存在实现；若某部分没有实质缺陷，无需改写。
+    假设 MySQL InnoDB，单次扣减一个 SKU，库存、幂等记录、Outbox 同库。
+    数量先校验为正；库存用 UPDATE inventory SET available_qty=available_qty-:quantity WHERE sku_id=:skuId AND available_qty>=:quantity，以影响行数判断成功。幂等键有 UNIQUE(user_id,idempotency_key)，相同键参数不一致拒绝，相同参数重放保存的结果；唯一冲突后退出失败事务，再用新事务读取原结果。
+    本地短事务完成幂等记录、扣减、最终结果和 Outbox 原子提交。投递器短事务领取带租约的事件，事务外发送 MQ，再以领取令牌更新状态；指数退避重试，进程崩溃后租约到期可重领；发送确认丢失会重复投递，消费端在自己的事务中同时写 Inbox 去重和订单，再确认消费。
+    长期失败进入 PARKED，保留失败记录、报警，并支持人工或自动重放，不能静默丢弃。消息超时不立即回补库存；仅业务明确失败或取消时才按唯一 deductionId 执行一次释放补偿，取消状态阻止迟到事件创建有效订单。
+    上述是设计说明，还没有执行真实数据库、MQ 或故障注入测试。
+
+expect:
+  exit_code: 0
+
+judge:
+  # 区分正确方案、实现待验证和无证据缺陷。
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - 接受或明确未发现 PARKED、持久保留失败记录、报警和重放方案的实质缺陷，不因没有 DEAD 或死信字样认定丢消息或要求重命名；不把已给出的原子扣减、唯一键、冲突事务退出、Outbox、事务外发送或消费幂等当成缺失。不要求无缺陷审查逐项复述这些已给机制
+    - 明确这是未执行的设计，指出真实并发、回滚、确认丢失、租约及重复消费等关键验证边界；可以列出有依据的实现待确认项，但不把题目已经给出的保证当成缺失，也不声称测试已通过

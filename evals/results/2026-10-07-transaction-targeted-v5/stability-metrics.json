@@ -1,0 +1,188 @@
+{
+  "schema_version": "stability-metrics-v1",
+  "generated_at_utc": "2026-10-07T02:31:39.7221058Z",
+  "source_directory": "evals/results/2026-10-07-transaction-targeted-v5",
+  "expected_samples": 3,
+  "actual_samples": 3,
+  "same_tasks_and_recorded_model": true,
+  "eligible_for_quality_comparison": true,
+  "interpretation": "每轮完整配对，质量断言排除 expect；汇总用例和采样等权。是否可发布仍需人工确认 Judge、冻结输入和版本。Token/耗时只含被测 Agent，不能换算计费。flaky 分组分别按 with_skill 和 without_skill 计算。",
+  "rounds": [
+    {
+      "iteration": "iteration-1",
+      "source_result_sha256": "c1515faa142a601c2638c4c531c22cc3d5535c6c7b9fd09821a5dd08b1e2c976",
+      "eligible_for_quality_comparison": true,
+      "engine": "codex",
+      "model": "gpt-6.1-sol",
+      "case_ids": [
+        "holdout-transaction-self-invocation"
+      ],
+      "summary": {
+        "with_skill": {
+          "cases": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "mean_assertion_pass_rate": 1.0,
+          "worst_assertion_pass_rate": 1.0,
+          "mean_judge_assertion_pass_rate": 1.0,
+          "worst_judge_assertion_pass_rate": 1.0,
+          "case_pass_rate": 1.0,
+          "mean_time_seconds": 51.813,
+          "mean_reported_tokens": 125474.0
+        },
+        "without_skill": {
+          "cases": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "mean_assertion_pass_rate": 1.0,
+          "worst_assertion_pass_rate": 1.0,
+          "mean_judge_assertion_pass_rate": 1.0,
+          "worst_judge_assertion_pass_rate": 1.0,
+          "case_pass_rate": 1.0,
+          "mean_time_seconds": 32.218,
+          "mean_reported_tokens": 32616.0
+        },
+        "delta_pp": 0.0,
+        "judge_delta_pp": 0.0
+      }
+    },
+    {
+      "iteration": "iteration-2",
+      "source_result_sha256": "b946e39260769ce5acc7961b1e2433da8e5446fb0fd7a49c117e3595eacc5b6a",
+      "eligible_for_quality_comparison": true,
+      "engine": "codex",
+      "model": "gpt-6.1-sol",
+      "case_ids": [
+        "holdout-transaction-self-invocation"
+      ],
+      "summary": {
+        "with_skill": {
+          "cases": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "mean_assertion_pass_rate": 1.0,
+          "worst_assertion_pass_rate": 1.0,
+          "mean_judge_assertion_pass_rate": 1.0,
+          "worst_judge_assertion_pass_rate": 1.0,
+          "case_pass_rate": 1.0,
+          "mean_time_seconds": 44.985,
+          "mean_reported_tokens": 106410.0
+        },
+        "without_skill": {
+          "cases": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "mean_assertion_pass_rate": 1.0,
+          "worst_assertion_pass_rate": 1.0,
+          "mean_judge_assertion_pass_rate": 1.0,
+          "worst_judge_assertion_pass_rate": 1.0,
+          "case_pass_rate": 1.0,
+          "mean_time_seconds": 34.944,
+          "mean_reported_tokens": 47189.0
+        },
+        "delta_pp": 0.0,
+        "judge_delta_pp": 0.0
+      }
+    },
+    {
+      "iteration": "iteration-3",
+      "source_result_sha256": "40781cc84e7f7da6e95af78e4db4c8b3277771ffcb570fdc2bd890cd125f09cf",
+      "eligible_for_quality_comparison": true,
+      "engine": "codex",
+      "model": "gpt-6.1-sol",
+      "case_ids": [
+        "holdout-transaction-self-invocation"
+      ],
+      "summary": {
+        "with_skill": {
+          "cases": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "mean_assertion_pass_rate": 1.0,
+          "worst_assertion_pass_rate": 1.0,
+          "mean_judge_assertion_pass_rate": 1.0,
+          "worst_judge_assertion_pass_rate": 1.0,
+          "case_pass_rate": 1.0,
+          "mean_time_seconds": 51.919,
+          "mean_reported_tokens": 125398.0
+        },
+        "without_skill": {
+          "cases": 1,
+          "passed": 0,
+          "failed": 1,
+          "errors": 0,
+          "mean_assertion_pass_rate": 0.75,
+          "worst_assertion_pass_rate": 0.75,
+          "mean_judge_assertion_pass_rate": 0.6666666666666666,
+          "worst_judge_assertion_pass_rate": 0.6666666666666666,
+          "case_pass_rate": 0.0,
+          "mean_time_seconds": 34.08,
+          "mean_reported_tokens": 32606.0
+        },
+        "delta_pp": 25.0,
+        "judge_delta_pp": 33.3333
+      }
+    }
+  ],
+  "summary": {
+    "with_skill": {
+      "runs": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "mean_quality_assertion_rate": 1.0,
+      "case_pass_rate": 1.0,
+      "worst_case_mean_quality_rate": 1.0,
+      "worst_sample_quality_rate": 1.0,
+      "mean_time_seconds": 49.572333333333326,
+      "mean_reported_tokens": 119094.0,
+      "flaky_cases": []
+    },
+    "without_skill": {
+      "runs": 3,
+      "passed": 2,
+      "failed": 1,
+      "errors": 0,
+      "mean_quality_assertion_rate": 0.8888888888888888,
+      "case_pass_rate": 0.6666666666666666,
+      "worst_case_mean_quality_rate": 0.8888888888888888,
+      "worst_sample_quality_rate": 0.6666666666666666,
+      "mean_time_seconds": 33.74733333333334,
+      "mean_reported_tokens": 37470.333333333336,
+      "flaky_cases": [
+        "holdout-transaction-self-invocation"
+      ]
+    },
+    "quality_delta_pp": 11.111111111111116,
+    "case_pass_delta_pp": 33.333333333333336
+  },
+  "case_stability": [
+    {
+      "case_id": "holdout-transaction-self-invocation",
+      "configuration": "with_skill",
+      "samples": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "flaky": false,
+      "mean_quality_assertion_rate": 1.0,
+      "worst_sample_quality_assertion_rate": 1.0
+    },
+    {
+      "case_id": "holdout-transaction-self-invocation",
+      "configuration": "without_skill",
+      "samples": 3,
+      "passed": 2,
+      "failed": 1,
+      "errors": 0,
+      "flaky": true,
+      "mean_quality_assertion_rate": 0.8888888888888888,
+      "worst_sample_quality_assertion_rate": 0.6666666666666666
+    }
+  ]
+}

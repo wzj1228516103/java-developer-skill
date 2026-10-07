@@ -1,0 +1,27 @@
+id: regression-cache-java17
+title: Java 17 缓存代码可编译且并发只加载一次
+description: |
+  回归旧 Judge 漏掉的 JDK 版本错误，并通过真实并发调用验证原子加载、成功缓存和失败后重试。
+tag: regression
+input:
+  prompt: |
+    请给出 Java 17 的 UserCacheService 完整代码。只在最终回复中输出一个 java 代码块（含 import 和完整 public class），无需创建文件或运行命令；允许按需读取适用 Skill 文件。
+    现有项目的类型如下，它们已经存在，不要在输出里重新定义：
+
+    public record User(long id, String name) {}
+    @FunctionalInterface
+    public interface UserRepository { User findById(long userId); }
+
+    UserCacheService 必须有 public UserCacheService(UserRepository repository) 构造函数和 public User get(long userId) 方法，不使用 package 声明或第三方依赖。
+    同一个 userId 同时收到多个调用时，成功查询只能访问 Repository 一次，所有调用取得同一用户；成功结果要缓存。Repository 抛出 RuntimeException 后调用不能永久阻塞或永久缓存失败，下次调用必须能重新加载；异常可以直接传播或包装为 CompletionException。
+    此题为单 JVM 缓存，用户必定存在，不需要 TTL、Redis 或额外的线程池。保留上述类型和方法签名。
+context:
+  # Judge 从用例工作区读取测试夹具，不依赖临时脚本的安装路径。
+  repo_fixture: evals/fixtures/cache-java17
+expect:
+  exit_code: 0
+judge:
+  # 编译及运行与被测 Agent 分开完成。
+  type: script
+  script_path: evals/fixtures/check-cache-java17.ps1
+  timeout_seconds: 180

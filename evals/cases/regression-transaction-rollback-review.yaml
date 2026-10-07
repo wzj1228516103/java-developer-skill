@@ -1,0 +1,30 @@
+# 从留出失败发现的回滚前提缺口，单独登记为开发回归，不并入原留出分数。
+id: regression-transaction-rollback-review
+title: 事务回滚验证不能假定任何异常都回滚
+description: |
+  核对检查型异常、捕获后正常返回和测试外层事务的证明边界。
+tag: regression
+input:
+  prompt: |
+    这是文本 Review，不创建文件、不执行测试。默认 Spring 代理事务，没有展示自定义回滚配置。
+    @Service class InvoiceService {
+        @Transactional
+        public void issue(long id) throws IOException {
+            repository.markIssued(id);
+            ledger.append(id); // 可能抛 IOException
+        }
+    }
+    测试人员说：给 ledger mock 一个 IOException，再把 @Transactional 加到 JUnit 测试上，
+    verify(repository).markIssued(id) 即可证明生产 issue 已经回滚。
+    这个结论是否成立？请给出最小正确验证方案，覆盖默认检查型异常、显式 rollbackFor、
+    捕获异常正常返回、未捕获运行时异常和两步提交状态；不要要求为无关场景改工程配置。
+expect:
+  exit_code: 0
+judge:
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - '说明默认 IOException 是检查型异常，@Transactional 不因此保证回滚；rollbackFor 可以作为建议、待确认契约或假设配置场景，不能宣称原代码已配置'
+    - '说明捕获后正常返回不自动触发异常回滚，未捕获运行时异常默认回滚；正确区分不同异常规则下的提交与回滚预期，不要求所有场景都回滚。准确的条件矩阵即可，不要求另写一段业务配置选择建议'
+    - '拒绝把 Mock 调用次数或测试外层事务的最终回滚当成生产事务证据；建议由真实 Spring 代理调用、避免测试外层事务掩盖边界、从新事务读取两步最终状态，设计成功提交和各异常路径，不能声称已运行'

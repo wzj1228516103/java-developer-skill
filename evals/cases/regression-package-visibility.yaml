@@ -1,0 +1,31 @@
+id: regression-package-visibility
+title: 修复跨包枚举可见性并保持接口
+description: |
+  回归订单骨架中包内枚举被包外 Service 使用的问题，使用 Java 17 编译并运行契约测试。
+tag: regression
+input:
+  prompt: |
+    两个包中的 Java 17 代码编译失败，请修复可见性问题并保留既有类型名、包名和方法签名。不要增加框架或调整业务行为。
+    这是文本交付任务，不需要在工作区写文件或执行命令。最终回复只输出 JSON 对象，格式为 {"files":{"src/com/example/domain/ClaimResult.java":"完整源码", "src/com/example/domain/ClaimStatus.java":"完整源码", "src/com/example/application/OrderService.java":"完整源码"}}，不需要 Markdown 包裹。每个公开顶层类型放在对应文件。
+
+    src/com/example/domain/ClaimResult.java:
+    package com.example.domain;
+    public record ClaimResult(ClaimStatus status) {
+        public static ClaimResult newRequest() { return new ClaimResult(ClaimStatus.NEW); }
+    }
+    enum ClaimStatus { NEW, COMPLETED }
+
+    src/com/example/application/OrderService.java:
+    package com.example.application;
+    import com.example.domain.*;
+    public final class OrderService {
+        public boolean accepts(ClaimResult result) { return result.status() == ClaimStatus.NEW; }
+    }
+context:
+  repo_fixture: evals/fixtures/package-visibility
+expect:
+  exit_code: 0
+judge:
+  type: script
+  script_path: evals/fixtures/check-package-visibility.ps1
+  timeout_seconds: 180

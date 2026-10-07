@@ -1,0 +1,24 @@
+# 稳定的用例标识。
+id: benchmark-money-calculation
+title: 金额计算应使用 BigDecimal
+description: |
+  基准用例：验证金额计算和存储不会使用 double 或 float，并且明确舍入策略。
+tag: benchmark
+input:
+  prompt: |
+    这是文本交付任务：请在最终回复中给出所需代码、设计或审查结论。仅查看题目提供的上下文和适用的 Skill 文件，无需创建工程、写入工作区文件或执行构建；评分对象是最终回复。
+    写一个 Java 17 的 OrderAmountService，计算订单单价、数量、折扣后的总价，并给出字段定义和关键计算代码。金额必须能安全存储和比较，请说明构造与舍入方式。
+
+expect:
+  must_contain:
+    - "BigDecimal"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all: ["BigDecimal"]
+    - output_contains:
+        any: ["BigDecimal.valueOf", "new BigDecimal(\"", "RoundingMode", "setScale"]
+    - output_contains:
+        not: ["double price", "double amount", "double total", "float price", "float amount", "double money"]

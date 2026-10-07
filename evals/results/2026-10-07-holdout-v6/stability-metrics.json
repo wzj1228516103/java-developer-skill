@@ -1,0 +1,290 @@
+{
+  "schema_version": "stability-metrics-v1",
+  "generated_at_utc": "2026-10-07T02:50:28.6860858Z",
+  "source_directory": "evals/results/2026-10-07-holdout-v6",
+  "expected_samples": 3,
+  "actual_samples": 3,
+  "same_tasks_and_recorded_model": true,
+  "eligible_for_quality_comparison": true,
+  "interpretation": "每轮完整配对，质量断言排除 expect；汇总用例和采样等权。是否可发布仍需人工确认 Judge、冻结输入和版本。Token/耗时只含被测 Agent，不能换算计费。flaky 分组分别按 with_skill 和 without_skill 计算。",
+  "rounds": [
+    {
+      "iteration": "iteration-1",
+      "source_result_sha256": "625126d686effd702a6bd23b8515ff1fffc217c7c728ba8be40e918d8415f31a",
+      "eligible_for_quality_comparison": true,
+      "engine": "codex",
+      "model": "gpt-6.1-sol",
+      "case_ids": [
+        "holdout-batch-import",
+        "holdout-dynamic-order-by",
+        "holdout-payment-unknown-outcome",
+        "holdout-resource-lifecycle",
+        "holdout-transaction-self-invocation"
+      ],
+      "summary": {
+        "with_skill": {
+          "cases": 5,
+          "passed": 5,
+          "failed": 0,
+          "errors": 0,
+          "mean_assertion_pass_rate": 1.0,
+          "worst_assertion_pass_rate": 1.0,
+          "mean_judge_assertion_pass_rate": 1.0,
+          "worst_judge_assertion_pass_rate": 1.0,
+          "case_pass_rate": 1.0,
+          "mean_time_seconds": 90.9348,
+          "mean_reported_tokens": 160013.8
+        },
+        "without_skill": {
+          "cases": 5,
+          "passed": 3,
+          "failed": 2,
+          "errors": 0,
+          "mean_assertion_pass_rate": 0.9,
+          "worst_assertion_pass_rate": 0.75,
+          "mean_judge_assertion_pass_rate": 0.8666666666666666,
+          "worst_judge_assertion_pass_rate": 0.6666666666666666,
+          "case_pass_rate": 0.6,
+          "mean_time_seconds": 60.498599999999996,
+          "mean_reported_tokens": 36168.6
+        },
+        "delta_pp": 10.0,
+        "judge_delta_pp": 13.3333
+      }
+    },
+    {
+      "iteration": "iteration-2",
+      "source_result_sha256": "d08d1cab39b44c7e1009602f1b69d16c42ca041e854f6d8274bea83c555ac4df",
+      "eligible_for_quality_comparison": true,
+      "engine": "codex",
+      "model": "gpt-6.1-sol",
+      "case_ids": [
+        "holdout-batch-import",
+        "holdout-dynamic-order-by",
+        "holdout-payment-unknown-outcome",
+        "holdout-resource-lifecycle",
+        "holdout-transaction-self-invocation"
+      ],
+      "summary": {
+        "with_skill": {
+          "cases": 5,
+          "passed": 5,
+          "failed": 0,
+          "errors": 0,
+          "mean_assertion_pass_rate": 1.0,
+          "worst_assertion_pass_rate": 1.0,
+          "mean_judge_assertion_pass_rate": 1.0,
+          "worst_judge_assertion_pass_rate": 1.0,
+          "case_pass_rate": 1.0,
+          "mean_time_seconds": 77.8742,
+          "mean_reported_tokens": 145109.0
+        },
+        "without_skill": {
+          "cases": 5,
+          "passed": 4,
+          "failed": 1,
+          "errors": 0,
+          "mean_assertion_pass_rate": 0.95,
+          "worst_assertion_pass_rate": 0.75,
+          "mean_judge_assertion_pass_rate": 0.9333333333333332,
+          "worst_judge_assertion_pass_rate": 0.6666666666666666,
+          "case_pass_rate": 0.8,
+          "mean_time_seconds": 59.41459999999999,
+          "mean_reported_tokens": 38963.4
+        },
+        "delta_pp": 5.0,
+        "judge_delta_pp": 6.6667
+      }
+    },
+    {
+      "iteration": "iteration-3",
+      "source_result_sha256": "2f9b78406f6281d8344bacd1567d0d25eb46bd69ffe9975f555c36b7a221b905",
+      "eligible_for_quality_comparison": true,
+      "engine": "codex",
+      "model": "gpt-6.1-sol",
+      "case_ids": [
+        "holdout-batch-import",
+        "holdout-dynamic-order-by",
+        "holdout-payment-unknown-outcome",
+        "holdout-resource-lifecycle",
+        "holdout-transaction-self-invocation"
+      ],
+      "summary": {
+        "with_skill": {
+          "cases": 5,
+          "passed": 5,
+          "failed": 0,
+          "errors": 0,
+          "mean_assertion_pass_rate": 1.0,
+          "worst_assertion_pass_rate": 1.0,
+          "mean_judge_assertion_pass_rate": 1.0,
+          "worst_judge_assertion_pass_rate": 1.0,
+          "case_pass_rate": 1.0,
+          "mean_time_seconds": 59.68520000000001,
+          "mean_reported_tokens": 104405.4
+        },
+        "without_skill": {
+          "cases": 5,
+          "passed": 4,
+          "failed": 1,
+          "errors": 0,
+          "mean_assertion_pass_rate": 0.9,
+          "worst_assertion_pass_rate": 0.5,
+          "mean_judge_assertion_pass_rate": 0.8666666666666668,
+          "worst_judge_assertion_pass_rate": 0.3333333333333333,
+          "case_pass_rate": 0.8,
+          "mean_time_seconds": 41.5492,
+          "mean_reported_tokens": 35855.2
+        },
+        "delta_pp": 10.0,
+        "judge_delta_pp": 13.3333
+      }
+    }
+  ],
+  "summary": {
+    "with_skill": {
+      "runs": 15,
+      "passed": 15,
+      "failed": 0,
+      "errors": 0,
+      "mean_quality_assertion_rate": 1.0,
+      "case_pass_rate": 1.0,
+      "worst_case_mean_quality_rate": 1.0,
+      "worst_sample_quality_rate": 1.0,
+      "mean_time_seconds": 76.16473333333332,
+      "mean_reported_tokens": 136509.4,
+      "flaky_cases": []
+    },
+    "without_skill": {
+      "runs": 15,
+      "passed": 11,
+      "failed": 4,
+      "errors": 0,
+      "mean_quality_assertion_rate": 0.888888888888889,
+      "case_pass_rate": 0.7333333333333333,
+      "worst_case_mean_quality_rate": 0.7777777777777777,
+      "worst_sample_quality_rate": 0.3333333333333333,
+      "mean_time_seconds": 53.82079999999999,
+      "mean_reported_tokens": 36995.73333333333,
+      "flaky_cases": [
+        "holdout-batch-import",
+        "holdout-dynamic-order-by",
+        "holdout-transaction-self-invocation"
+      ]
+    },
+    "quality_delta_pp": 11.111111111111105,
+    "case_pass_delta_pp": 26.66666666666667
+  },
+  "case_stability": [
+    {
+      "case_id": "holdout-batch-import",
+      "configuration": "with_skill",
+      "samples": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "flaky": false,
+      "mean_quality_assertion_rate": 1.0,
+      "worst_sample_quality_assertion_rate": 1.0
+    },
+    {
+      "case_id": "holdout-batch-import",
+      "configuration": "without_skill",
+      "samples": 3,
+      "passed": 2,
+      "failed": 1,
+      "errors": 0,
+      "flaky": true,
+      "mean_quality_assertion_rate": 0.8888888888888888,
+      "worst_sample_quality_assertion_rate": 0.6666666666666666
+    },
+    {
+      "case_id": "holdout-dynamic-order-by",
+      "configuration": "with_skill",
+      "samples": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "flaky": false,
+      "mean_quality_assertion_rate": 1.0,
+      "worst_sample_quality_assertion_rate": 1.0
+    },
+    {
+      "case_id": "holdout-dynamic-order-by",
+      "configuration": "without_skill",
+      "samples": 3,
+      "passed": 2,
+      "failed": 1,
+      "errors": 0,
+      "flaky": true,
+      "mean_quality_assertion_rate": 0.7777777777777778,
+      "worst_sample_quality_assertion_rate": 0.3333333333333333
+    },
+    {
+      "case_id": "holdout-payment-unknown-outcome",
+      "configuration": "with_skill",
+      "samples": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "flaky": false,
+      "mean_quality_assertion_rate": 1.0,
+      "worst_sample_quality_assertion_rate": 1.0
+    },
+    {
+      "case_id": "holdout-payment-unknown-outcome",
+      "configuration": "without_skill",
+      "samples": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "flaky": false,
+      "mean_quality_assertion_rate": 1.0,
+      "worst_sample_quality_assertion_rate": 1.0
+    },
+    {
+      "case_id": "holdout-resource-lifecycle",
+      "configuration": "with_skill",
+      "samples": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "flaky": false,
+      "mean_quality_assertion_rate": 1.0,
+      "worst_sample_quality_assertion_rate": 1.0
+    },
+    {
+      "case_id": "holdout-resource-lifecycle",
+      "configuration": "without_skill",
+      "samples": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "flaky": false,
+      "mean_quality_assertion_rate": 1.0,
+      "worst_sample_quality_assertion_rate": 1.0
+    },
+    {
+      "case_id": "holdout-transaction-self-invocation",
+      "configuration": "with_skill",
+      "samples": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "flaky": false,
+      "mean_quality_assertion_rate": 1.0,
+      "worst_sample_quality_assertion_rate": 1.0
+    },
+    {
+      "case_id": "holdout-transaction-self-invocation",
+      "configuration": "without_skill",
+      "samples": 3,
+      "passed": 1,
+      "failed": 2,
+      "errors": 0,
+      "flaky": true,
+      "mean_quality_assertion_rate": 0.7777777777777777,
+      "worst_sample_quality_assertion_rate": 0.6666666666666666
+    }
+  ]
+}

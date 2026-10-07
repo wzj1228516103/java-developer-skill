@@ -1,0 +1,49 @@
+# 评测配置版本。
+schema_version: v1alpha1
+
+environment:
+  # 这些用例只需要文本交互，不需要远程沙箱。
+  type: none
+
+skills:
+  - source: local_path
+    path: .
+    # 安装运行资源，避免把 Git 历史和维护文件带入被测工作区。
+    include: [SKILL.md, "skills/**", "references/**", "templates/**", "agents/**", "project/**", memory.md]
+
+engine:
+  # 使用当前 Codex CLI 作为被测 Agent Engine。
+  name: codex
+  # 固定本轮已使用的模型名称；连接与凭据沿用本机配置。
+  model:
+    name: gpt-6.1-sol
+
+cases:
+  files:
+    - evals/cases/order-endpoint.yaml
+    - evals/cases/security-review.yaml
+    - evals/cases/inventory-design.yaml
+    - evals/cases/service-tests.yaml
+    - evals/cases/contract-boundary.yaml
+    - evals/cases/benchmark-date-time-api.yaml
+    - evals/cases/benchmark-money-calculation.yaml
+    - evals/cases/benchmark-null-safety.yaml
+    - evals/cases/benchmark-sql-parameterization.yaml
+    - evals/cases/benchmark-collection-concurrency.yaml
+    - evals/cases/benchmark-layering-contract.yaml
+    - evals/cases/regression-cache-java17.yaml
+    - evals/cases/regression-package-visibility.yaml
+    - evals/cases/regression-remote-reservation-recovery.yaml
+    - evals/cases/regression-inventory-parked-review.yaml
+  defaults:
+    timeout_seconds: 420
+    max_turns: 8
+  parallelism: 1
+
+benchmark:
+  enabled: true
+
+report:
+  formats: [json, html]
+  artifacts:
+    - transcript

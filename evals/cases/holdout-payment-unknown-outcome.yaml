@@ -1,0 +1,37 @@
+# 稳定的用例标识。
+id: holdout-payment-unknown-outcome
+title: 处理支付超时后的未知结果
+description: |
+  未参与主套件调优的可靠性设计任务，验证是否区分超时与确定失败。
+tag: holdout
+input:
+  prompt: |
+    这是文本设计任务，请给出支付扣款流程的风险判断、状态机和测试边界，不创建工程或执行测试。
+    现有代码如下：
+    ```java
+    public PaymentResult pay(String orderId, BigDecimal amount) {
+        for (int i = 0; i < 3; i++) {
+            try {
+                paymentClient.charge(orderId, amount); // HTTP，超时可能发生在服务端已扣款之后
+                paymentRepository.markPaid(orderId);
+                return PaymentResult.success();
+            } catch (SocketTimeoutException e) {
+                log.warn("charge timeout, retrying order={}", orderId);
+            }
+        }
+        return PaymentResult.failed();
+    }
+    ```
+    请判断当前重试和状态写入是否安全，并设计幂等键、未知结果查询、有限重试、对账或人工处理路径。不要假定 paymentClient 已经支持幂等，未展示的接口只能作为待确认契约。
+
+expect:
+  exit_code: 0
+
+judge:
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - 识别 SocketTimeoutException 可能代表远端已扣款的未知结果，指出无条件重复 charge 可能造成重复扣款；不能把三次重试称为安全机制
+    - 要求稳定业务幂等键及支付方幂等或查询协议，区分确定失败、处理中和已成功状态；未知结果应查询、等待回调或进入可追踪对账/人工处理，不能直接标记 FAILED
+    - 说明本地 markPaid 与远端扣款不是同一数据库事务，给出有限退避、状态机和测试边界；未展示的 idempotency/query/refund API 只能标为待确认，不得伪造为现有方法

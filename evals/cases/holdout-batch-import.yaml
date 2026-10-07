@@ -1,0 +1,32 @@
+# 稳定的用例标识。
+id: holdout-batch-import
+title: 设计外部校验参与的批量导入
+description: |
+  未参与主套件调优的批处理任务，验证事务大小、远程 IO 和部分失败语义。
+tag: holdout
+input:
+  prompt: |
+    这是文本架构设计任务，请为下面的批量导入提出最小改造方案、事务边界、失败恢复和测试场景，不创建文件或执行构建。
+    ```java
+    @Transactional
+    public ImportSummary importRows(List<ImportRow> rows) {
+        for (ImportRow row : rows) {
+            productClient.validate(row.sku()); // HTTP 远程校验，延迟不稳定
+            productRepository.insert(row.toEntity());
+        }
+        return ImportSummary.success(rows.size());
+    }
+    ```
+    单次文件可能有 100 万行，业务要求可重试、可查看每行结果，允许部分行失败但不能重复写入成功行。请说明是否保留整批本地事务、如何分块和记录状态、如何处理远程校验超时，以及必须验证的最终状态。
+
+expect:
+  exit_code: 0
+
+judge:
+  type: agent_judge
+  model: gpt-6.1-sol
+  pass_threshold: 1.0
+  criteria:
+    - '识别百万行与远程 HTTP 不应放进一个长数据库事务；明确事务外远程校验、分块本地事务或 staging/状态表方案，并说明部分失败语义'
+    - '为每行或业务唯一键设计幂等和状态迁移，重试不能重复写成功行；记录失败原因、处理中恢复和可查询导入结果，不能只返回总行数'
+    - '超时表示未获得有效校验结果，不能当作校验成功后直接写产品；与明确业务拒绝区分，允许保持未知或待重试。远程校验若有副作用需幂等/查询协议；接受明确条件设计（假设只读可有限重试，若有副作用则需确认协议），不能把未展示契约宣称为已存在。给出有限重试和退避、耗尽后的可追踪终态/补偿/对账/人工处理。若引入并发或 worker，资源上限、停止/取消、租约恢复三项至少有一项具体方案即可，不要求三项全部具备，也不要求数字并发上限。测试覆盖断点恢复、重复导入、事务原子性或块回滚、远程超时和最终状态中的关键场景，允许等价测试组合，不能声称已执行'

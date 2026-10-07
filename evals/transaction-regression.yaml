@@ -1,0 +1,24 @@
+# 开发回归配置；成绩与五项留出套件分别报告。
+schema_version: v1alpha1
+environment:
+  type: none
+skills:
+  - source: local_path
+    path: .
+    include: [SKILL.md, "skills/**", "references/**", "templates/**", "agents/**", "project/**", memory.md]
+engine:
+  name: codex
+  model:
+    name: gpt-6.1-sol
+cases:
+  files:
+    - evals/cases/regression-transaction-rollback-review.yaml
+  defaults:
+    timeout_seconds: 420
+    max_turns: 8
+  parallelism: 2
+benchmark:
+  enabled: true
+report:
+  formats: [json, html]
+  artifacts: [transcript]
