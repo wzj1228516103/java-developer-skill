@@ -222,7 +222,7 @@ try {
     }
     Check-Fixture "unknown guide rule reference" "validate-content.ps1" $false "Unknown rule ID SEC-999" {
         param($fixture)
-        Edit-Text $fixture "README.md" { param($text); return $text.Replace('SEC-001', 'SEC-999') }
+        Edit-Text $fixture "README.md" { param($text); return $text + [char]10 + "SEC-999" + [char]10 }
     }
 } finally {
     if ($script:Failures.Count -eq 0) {
