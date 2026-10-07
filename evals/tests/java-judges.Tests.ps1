@@ -71,3 +71,4 @@ try {
 } finally { $env:EVAL_FINAL_MESSAGE = $previousMessage }
 if ($failures.Count -gt 0) { throw ("编译 Judge 回归失败：" + ($failures -join "、")) }
 Write-Output ("全部 {0} 个编译及行为 Judge 回归通过（解释器：{1}）。" -f $samples.Count, $JudgeShell)
+exit 0

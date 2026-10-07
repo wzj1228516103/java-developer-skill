@@ -90,3 +90,4 @@ try {
 }
 if ($failures.Count -gt 0) { throw ("评分器回归失败：" + ($failures -join "、")) }
 Write-Output ("全部 {0} 个 Judge 回归通过（解释器：{1}）。" -f $samples.Count, $JudgeShell)
+exit 0
