@@ -331,7 +331,7 @@ git diff --check
 
 新增入口时同步 `skills.registry.json` 和 README；清单的 `skills` 目录不变时无需逐项重复登记。修改版本时同步插件清单、注册表和 CHANGELOG。维护脚本位于 `data/maintenance/`，验证 `name`、`description` 等仓库约定，但不是通用 YAML 解析器。若本机已安装 skill-creator，还可以用其 `quick_validate.py` 做补充检查。
 
-CI 检查入口与规则结构，不等于验证所有 Java 示例可编译、插件已经安装或模型一定更准确。对照结果来自参与过优化的来源任务，适用于回归验证，不代表独立泛化收益；真实 Spring/MySQL 事务和并发行为尚未完成运行验证。
+CI 会在 Windows 和 Ubuntu 上检查入口注册与规则结构，并在 Ubuntu 上运行 Judge、Java 17 编译夹具、评测指标、稳定性和 YAML 配置回归。它不等于验证所有 Java 示例可编译、插件已经安装或模型一定更准确；真实 Spring/MySQL 事务和并发行为尚未完成运行验证。对照结果来自参与过优化的来源任务，适用于回归验证，不代表独立泛化收益。
 
 ## 适用边界
 

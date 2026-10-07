@@ -29,3 +29,43 @@ jobs:
       - name: Test validators with valid and invalid fixtures
         shell: pwsh
         run: ./data/maintenance/tests/quality.Tests.ps1
+
+  evaluation-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install YAML test dependency
+        run: python -m pip install PyYAML==6.0.2
+
+      - name: Test rule-based Judges
+        shell: pwsh
+        run: ./evals/tests/judges.Tests.ps1 -JudgeShell pwsh
+
+      - name: Test Java compile and behavior Judges
+        shell: pwsh
+        run: ./evals/tests/java-judges.Tests.ps1 -JudgeShell pwsh
+
+      - name: Test evaluation metrics
+        shell: pwsh
+        run: ./evals/tests/metrics.Tests.ps1
+
+      - name: Test stability metrics
+        shell: pwsh
+        run: ./evals/tests/stability.Tests.ps1
+
+      - name: Test evaluation YAML contracts
+        run: python ./evals/tests/config.Tests.py
