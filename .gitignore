@@ -7,3 +7,6 @@ node_modules/
 *.log
 .env
 .env.*
+
+# Local skill-up archives; only explicitly selected summaries are versioned.
+evals/results/
