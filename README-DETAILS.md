@@ -37,9 +37,8 @@
 - [仓库结构](#仓库结构)
 - [维护检查](#维护检查)
 - [适用边界](#适用边界)
-- [参考来源与定位](#参考来源与定位)
+- [参考与致谢](#参考与致谢)
 - [贡献指南](#贡献指南)
-- [致谢](#致谢)
 - [版本记录](CHANGELOG.md)
 - [安全策略](SECURITY.md)
 - [许可证](#许可证)
@@ -58,7 +57,7 @@ Java 后端代码的问题通常不在“能不能编译”，而在于隐含的
 
 **设计目标**：将容易遗漏的项目契约和工程风险整理成**结构化、可按需检索**的约束。整份手册一次性加载会增加上下文成本，因此只在相关规则会改变答案时读取它。Skill 不保证比模型原有能力更好，效果需要用真实任务验证。
 
-Java Developer Skills 将规则、公共契约和代码模板组合起来，并根据项目实际技术栈按需加载，不把某个团队的实现细节伪装成通用标准。
+Java Developer Skill 将规则、公共契约和代码模板组合起来，并根据项目实际技术栈按需加载，不把某个团队的实现细节伪装成通用标准。
 
 ## 为什么以黄山版为核心基线
 
@@ -101,6 +100,17 @@ Java 代码通过编译、接口返回 200，并不代表它适合长期运行�
 | `/java-rules` | 查询规范 | 用具体例子解释规则和适用条件 |
 
 表里的 `/java-dev` 等是入口名称，不一定是你使用的 AI 工具自带的斜杠命令。不会用这些名称也没关系，启用 Skill 后直接说清楚要做什么就行。
+
+常见的使用顺序如下：
+
+```text
+新功能：/java-design → /java-dev → /java-review → /java-test
+线上问题：/java-fix → /java-review → /java-test
+遗留代码：/java-refactor → /java-review → /java-test
+只查规范：/java-rules
+```
+
+小改动可以直接使用一个入口；涉及权限、支付、库存、数据库迁移、事务或消息一致性时，建议至少经过设计、Review 和测试。
 
 ## 本 Skill 的优势
 
@@ -185,6 +195,22 @@ npx skills list -g -a codex
 
 看到 `java-developer-skill` 就表示安装完成。重新打开 Codex，在消息里输入 `$java-developer-skill`，再接着写你的任务。若找不到它，重启 Codex 后再检查一次。
 
+如果当前环境不能使用 `npx skills`，也可以先完整克隆仓库，再按宿主的 Skill 目录导入：
+
+```bash
+git clone https://github.com/wzj1228516103/java-developer-skill.git \
+  ~/.codex/skills/java-developer-skill
+```
+
+Windows PowerShell：
+
+```powershell
+git clone https://github.com/wzj1228516103/java-developer-skill.git `
+  "$env:USERPROFILE\.codex\skills\java-developer-skill"
+```
+
+请保留仓库中的 `SKILL.md`、`skills/` 和 `data/`；只复制某一个 `skills/java-*` 子目录可能找不到它引用的共享规则。
+
 ## 使用示例
 
 启用 Skill 后，像平时一样把需求说清楚就行，不用背入口名称：
@@ -249,6 +275,8 @@ message_queue: rocketmq
 
 配置优先级为“项目规范 > 个人偏好 > 通用建议”；留空或候选列表不是已确认的配置。生成/修改这些文件需用户要求或确认，不自动把聊天中的一次性选择写成长期规则。不要提交内部项目细节、个人信息或凭据。
 
+项目配置文件的字段说明和示例见 [`project/README.md`](project/README.md)。
+
 ## 仓库结构
 
 ```text
@@ -278,6 +306,8 @@ java-developer-skill/
 │   └── _template.md            # 项目规范模板
 └── evals/                      # Skill-up 配置、用例、Judge 与精选结果
 ```
+
+根目录 `SKILL.md` 是总入口，`skills/` 是七种任务入口，`data/references/` 是按主题读取的规则。`skills.registry.json` 和 `.codex-plugin/plugin.json` 用于维护和插件注册，不是 Java 项目运行时配置。
 
 ## 维护检查
 
@@ -310,16 +340,6 @@ CI 检查入口与规则结构，不等于验证所有 Java 示例可编译、�
 
 本项目提供工程指导，不替代组织的安全审计、数据库变更审批、架构评审和发布流程。
 
-## 参考来源与定位
-
-本项目的规约来源与工程实现参考如下：
-
-- [**《Java 开发手册（黄山版）》**](https://github.com/alibaba/p3c)：本项目的 Java 通用规约基线。它将阿里巴巴长期生产实践总结为一套广泛采用的工程规范，是本 Skill 处理命名、异常、日志、测试、安全、数据库和工程结构问题时的重要参考。当前仓库只选取并重新组织适用于 AI 辅助开发的内容，不表示全文收录，也不表示所有规则均为手册原文。
-- [Alibaba Java Development Guide](https://github.com/Sxuan-Coder/alibaba-java-development-guide)：按需路由、规则分级、个人和项目配置、实战案例。
-- [backend-skill](https://github.com/zhangloveyan/backend-skill)：公共契约、代码模板、开发生命周期、Review 和测试闭环。
-
-规则按通用后端实践重新组织，包含事务、缓存、消息等工程总结；`BLOCKER/MUST/SHOULD/MAY` 是本项目的分级，不与阿里手册条文级别一一等同。本项目非阿里巴巴官方产品，也未获其背书。
-
 ## 贡献指南
 
 欢迎提交规则、模板和实战案例。新增内容建议遵循：
@@ -330,10 +350,18 @@ CI 检查入口与规则结构，不等于验证所有 Java 示例可编译、�
 4. 不引入与具体项目绑定的类名、包名、错误码和数据库字段作为全局规则。
 5. 修改后运行仓库内的维护检查与回归测试，并记录未验证的行为。
 
-## 致谢
+## 参考与致谢
 
-- [**《Java 开发手册（黄山版）》**](https://github.com/alibaba/p3c) —— 本 Skill 的规约内容来源，阿里巴巴 Java 社区工程规约的集大成者。
-- [**skill-up**](https://github.com/alibaba/skill-up) —— 本 Skill 的评测工具，支撑 `evals/` 基准对比与持续回归。
+本项目的规则来源、工程实现参考和评测工具如下：
+
+| 来源 | 用途 |
+|---|---|
+| [**《Java 开发手册（黄山版）》**](https://github.com/alibaba/p3c) | Java 通用规约基线；本项目只选取并重新整理适用于 AI 辅助开发的内容。 |
+| [Alibaba Java Development Guide](https://github.com/Sxuan-Coder/alibaba-java-development-guide) | 参考按需路由、规则分级、个人和项目配置及实战案例。 |
+| [backend-skill](https://github.com/zhangloveyan/backend-skill) | 参考公共契约、代码模板、开发生命周期和测试闭环。 |
+| [**skill-up**](https://github.com/alibaba/skill-up) | 本 Skill 的评测工具，支撑 `evals/` 基准对比与持续回归。 |
+
+感谢《Java 开发手册（黄山版）》为 Java 社区提供的工程规约基础，也感谢 `skill-up` 为 Skill 评测提供的工具支持。本项目不是阿里巴巴官方产品，也未获其背书；`BLOCKER/MUST/SHOULD/MAY` 是本项目自己的分级，不与手册条文级别一一等同。
 
 ## 许可证
 
