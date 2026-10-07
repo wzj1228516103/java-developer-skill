@@ -106,6 +106,7 @@ npx skills list -g -a codex
 - [**skill-up**](https://github.com/alibaba/skill-up) —— 本 Skill 的评测工具，支撑 `evals/` 基准对比与持续回归。
 
 本项目不是阿里巴巴官方产品，也未获其背书。项目原创内容采用 [MIT License](LICENSE)；引用内容和第三方素材遵循各自许可。
+第三方来源、改编范围和对应许可证见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
 
 ## 维护与反馈
 
@@ -117,3 +118,4 @@ pwsh -NoProfile -File ./data/maintenance/scripts/validate-content.ps1
 ```
 
 版本变化见 [CHANGELOG](CHANGELOG.md)，安全问题见 [SECURITY](SECURITY.md)。
+贡献者请先阅读 [贡献指南](CONTRIBUTING.md) 和 [行为准则](CODE_OF_CONDUCT.md)。

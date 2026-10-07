@@ -1,15 +1,25 @@
 # 贡献指南
 
-感谢参与 Java Developer Skills。贡献应尽量让 Skill 更准确、更轻量，而不是机械增加规则数量。
+感谢参与 Java Developer Skill。贡献应尽量让 Skill 更准确、更轻量，而不是机械增加规则数量。参与讨论和提交贡献时请遵守[行为准则](CODE_OF_CONDUCT.md)。
 
-## 提交前检查
+## 本地验证
+
+维护检查需要 PowerShell 7。完整评测回归还需要 JDK 17+、Python 3.12 和 PyYAML 6.0.2；这些检查不调用模型，也不需要 API Key。
 
 ```powershell
 pwsh -NoProfile -File ./data/maintenance/scripts/validate-registry.ps1
 pwsh -NoProfile -File ./data/maintenance/scripts/validate-content.ps1
 pwsh -NoProfile -File ./data/maintenance/tests/quality.Tests.ps1
+pwsh -NoProfile -File ./evals/tests/judges.Tests.ps1 -JudgeShell pwsh
+pwsh -NoProfile -File ./evals/tests/java-judges.Tests.ps1 -JudgeShell pwsh
+pwsh -NoProfile -File ./evals/tests/metrics.Tests.ps1
+pwsh -NoProfile -File ./evals/tests/stability.Tests.ps1
+python -m pip install PyYAML==6.0.2
+python ./evals/tests/config.Tests.py
 git diff --check
 ```
+
+评测回归的作用和目录说明见 [`evals/README.md`](evals/README.md)。CI 会在 Pull Request 上自动运行同一组检查。
 
 ## 规则编写约定
 
@@ -23,4 +33,4 @@ git diff --check
 
 ## Pull Request
 
-PR 描述请包含变更目的、影响范围、验证命令和未覆盖风险。规则或入口变更应同时更新 README、CHANGELOG 或对应文档。
+PR 描述请包含变更目的、影响范围、验证命令和未覆盖风险。规则或入口变更应同时更新 README、CHANGELOG 或对应文档。贡献者无需在 PR 中粘贴敏感日志或生产数据；提交前请先脱敏。

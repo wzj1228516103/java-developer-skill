@@ -39,6 +39,8 @@
 - [适用边界](#适用边界)
 - [参考与致谢](#参考与致谢)
 - [贡献指南](#贡献指南)
+- [行为准则](CODE_OF_CONDUCT.md)
+- [第三方来源和许可](THIRD-PARTY-NOTICES.md)
 - [版本记录](CHANGELOG.md)
 - [安全策略](SECURITY.md)
 - [许可证](#许可证)
@@ -365,8 +367,10 @@ CI 会在 Windows 和 Ubuntu 上检查入口注册与规则结构，并在 Ubunt
 
 感谢《Java 开发手册（黄山版）》为 Java 社区提供的工程规约基础，也感谢 `skill-up` 为 Skill 评测提供的工具支持。本项目不是阿里巴巴官方产品，也未获其背书；`BLOCKER/MUST/SHOULD/MAY` 是本项目自己的分级，不与手册条文级别一一等同。
 
+第三方来源、改编范围及许可证副本见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+
 ## 许可证
 
-[MIT License](LICENSE)
+[MIT License](LICENSE) 适用于本项目原创封装和整理。来自《Java 开发手册（黄山版）》的改编内容按 Apache-2.0 标注，见 [第三方来源说明](THIRD-PARTY-NOTICES.md) 和 [Apache-2.0 许可证副本](LICENSES/Apache-2.0.txt)。
 
-MIT 适用于本项目原创封装和整理；引用来源的商标、手册原文及第三方素材仍遵循各自权利和许可，不因本仓库的 MIT 声明而改变。
+引用来源的商标、手册原文及第三方素材仍遵循各自权利和许可，不因本仓库的 MIT 声明而改变。

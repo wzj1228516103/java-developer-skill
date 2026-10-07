@@ -44,7 +44,7 @@ function Check-Fixture {
             Copy-Item -LiteralPath $file.FullName -Destination $fixture
         }
     }
-    foreach ($directory in @(".codex-plugin", "skills", "project")) {
+    foreach ($directory in @(".codex-plugin", "skills", "project", "LICENSES")) {
         Copy-Item -LiteralPath (Join-Path $rootPath $directory) -Destination $fixture -Recurse
     }
     foreach ($directory in @("references", "templates")) {
