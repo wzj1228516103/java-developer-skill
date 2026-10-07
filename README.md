@@ -1,5 +1,10 @@
 # Java Developer Skill
 
+<div align="center">
+  <img src="docs/images/java-developer-skill-logo.png" alt="Java Developer Skill 项目视觉图" width="260">
+  <p><strong>基于 AI 的 Java 开发全流程助手</strong></p>
+</div>
+
 > 面向 Java/Spring 后端项目的可按需加载 Skill：让代码生成、接口设计、数据库变更、代码 Review 和测试补全遵循一致的生产级约束。
 
 > **核心规约基线：**《Java 开发手册（黄山版）》是本项目理解 Java 工程规范的起点。它把多年生产实践沉淀为可执行的编码、异常、测试、安全、数据库、工程结构和设计约束；本 Skill 在此基础上做按场景路由和项目化补充。
@@ -8,12 +13,17 @@
 [![Java](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://www.oracle.com/java/technologies/javase/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
 
+## 项目总览
+
+![Java Developer Skill 项目整体介绍：七个开发流程入口、技术栈与工程能力](docs/images/java-developer-skill-overview.png)
+
 本项目提供七种 Java 后端工作模式，用 `/java-dev`、`/java-review` 等写法表达任务意图；入口背后共享规则、契约和项目配置。`/java-*` 是本项目的入口简称，不是所有宿主都内置的命令；安装后的显式调用方法见[快速开始](#快速开始)。
 
 ## 目录
 
 - [为什么需要这个 Skill](#为什么需要这个-skill)
 - [为什么以黄山版为核心基线](#为什么以黄山版为核心基线)
+- [项目总览](#项目总览)
 - [七个入口](#七个入口)
 - [入口如何配合](#入口如何配合)
 - [本 Skill 的优势](#本-skill-的优势)
