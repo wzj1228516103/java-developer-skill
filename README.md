@@ -18,9 +18,36 @@
 
 这张图展示了 Skill 如何把一条自然语言任务路由到对应入口，再结合共享规则和项目约定产出代码、设计、Review 与测试结果，并通过维护校验、`skill-up` 和 GitHub Actions 持续回归。
 
-![Java Developer Skill 架构总览：任务输入、按需路由、共享规则、工程输出与持续评测](data/images/java-developer-skill-architecture.png)
+```mermaid
+flowchart LR
+    Task["开发者 / Java 项目<br/>自然语言任务与现有代码"] --> Router
 
-可编辑源文件：[java-developer-skill-architecture.drawio](data/images/java-developer-skill-architecture.drawio)
+    subgraph Skill["Java Developer Skill"]
+        Router["SKILL.md<br/>Root Router<br/>识别任务 · 选择入口 · 应用裁决顺序"] --> Entrances
+        Entrances["任务入口<br/>java-dev · java-design · java-review · java-test<br/>java-fix · java-refactor · java-rules"] --> Shared
+        Shared["共享规则与项目上下文<br/>data/references · data/templates<br/>memory.md · project/<项目>.md"]
+    end
+
+    Shared --> Output["工程输出<br/>代码 · 设计 · Review · 测试<br/>修复 · 重构 · 规则解释"]
+    Shared --> Verify["维护校验<br/>registry · content · quality tests"]
+    Verify --> CI["GitHub Actions CI<br/>Windows / Ubuntu · PR 自动验证"]
+    Shared --> Eval["skill-up 评测<br/>Judge · holdout · with/without 对比"]
+    P3C[("《Java 开发手册（黄山版）》 / P3C")] -. "规则参考基线" .-> Shared
+    Eval -. "持续回归" .-> CI
+
+    classDef input fill:#18263d,stroke:#55b8ff,color:#e8f1ff;
+    classDef core fill:#1e4a71,stroke:#55b8ff,color:#eef6ff;
+    classDef shared fill:#3a2f64,stroke:#b49bea,color:#f1ebff;
+    classDef output fill:#173b35,stroke:#57c99a,color:#e8fff5;
+    classDef quality fill:#403519,stroke:#e7bd61,color:#fff4d6;
+    classDef external fill:#242b38,stroke:#71809a,color:#e8f1ff;
+    class Task input;
+    class Router,Entrances core;
+    class Shared shared;
+    class Output,Verify output;
+    class CI,Eval quality;
+    class P3C external;
+```
 
 ## 项目简介
 
