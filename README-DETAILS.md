@@ -19,6 +19,14 @@
 
 ![Java Developer Skill 项目整体介绍：七个开发流程入口、技术栈与工程能力](data/images/java-developer-skill-overview.png)
 
+## 架构总览
+
+架构图按“输入 → 路由 → 共享规则与项目上下文 → 交付与质量反馈”展开，重点说明这是一个面向 Java/Spring 后端工作的 AI Skill 运行架构，而不是一个需要部署的 Java 服务。外部的 P3C 规约提供参考基线，`skill-up` 和 GitHub Actions 负责持续评测与回归。
+
+![Java Developer Skill 架构总览：任务输入、按需路由、共享规则、工程输出与持续评测](data/images/java-developer-skill-architecture.png)
+
+可编辑源文件：[java-developer-skill-architecture.drawio](data/images/java-developer-skill-architecture.drawio)
+
 本项目提供七种 Java 后端工作模式，覆盖开发、设计、Review、测试、修复、重构和规则查询。记不住入口名称也没关系，直接用日常语言描述任务即可。安装和使用方法见[安装](#安装)与[使用示例](#使用示例)。
 
 ## 目录

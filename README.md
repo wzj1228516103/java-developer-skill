@@ -14,6 +14,14 @@
 
 ![Java Developer Skill 项目整体介绍：七个开发流程入口、技术栈与工程能力](data/images/java-developer-skill-overview.png)
 
+## 架构总览
+
+这张图展示了 Skill 如何把一条自然语言任务路由到对应入口，再结合共享规则和项目约定产出代码、设计、Review 与测试结果，并通过维护校验、`skill-up` 和 GitHub Actions 持续回归。
+
+![Java Developer Skill 架构总览：任务输入、按需路由、共享规则、工程输出与持续评测](data/images/java-developer-skill-architecture.png)
+
+可编辑源文件：[java-developer-skill-architecture.drawio](data/images/java-developer-skill-architecture.drawio)
+
 ## 项目简介
 
 Java Developer Skill 面向 Java/Spring 后端项目，基于《Java 开发手册（黄山版）》并补充常见工程实践。它会按任务读取相关规则，帮助完成开发、设计、Review、测试、修复、重构和规范查询；不替代项目约定或安全审查。
